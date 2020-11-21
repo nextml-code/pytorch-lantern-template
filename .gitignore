@@ -8,7 +8,7 @@ dist
 build/
 _build/
 *.pyc
-test_template
+.test-template/
 
 AUTHORS
 ChangeLog

@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from workflow.torch import ModuleCompose, module_device
+from wildfire import ModuleCompose, module_device
 
 from {{cookiecutter.package_name}} import problem, architecture
 

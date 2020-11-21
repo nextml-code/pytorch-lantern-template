@@ -1,19 +1,16 @@
+import argparse
+import random
 from functools import partial
 from pathlib import Path
 import numpy as np
-import random
-import argparse
+from tqdm import tqdm
 import torch
+import torch.utils.tensorboard
 import torch.nn.functional as F
-import ignite
 import logging
-import workflow
-from workflow.functional import starcompose
-from workflow.torch import set_seeds
-from workflow.ignite import worker_init
-from workflow.ignite.handlers.learning_rate import (
-    LearningRateScheduler, warmup, cyclical
-)
+import wildfire
+from wildfire.functional import starcompose
+from wildfire import set_seeds, worker_init
 from datastream import Datastream
 
 from {{cookiecutter.package_name}} import (
@@ -30,14 +27,12 @@ def train(config):
         model.parameters(), lr=config['learning_rate']
     )
 
-    train_state = dict(model=model, optimizer=optimizer)
-
-    if Path('model').exists():
-        print('Loading model checkpoint')
-        workflow.ignite.handlers.ModelCheckpoint.load(
-            train_state, 'model/checkpoints', device
-        )
-        workflow.torch.set_learning_rate(optimizer, config['learning_rate'])
+    # if Path('model').exists():
+    #     print('Loading model checkpoint')
+    #     wildfire.ignite.handlers.ModelCheckpoint.load(
+    #         train_state, 'model/checkpoints', device
+    #     )
+    #     wildfire.set_learning_rate(optimizer, config['learning_rate'])
 
     evaluate_data_loaders = {
         f'evaluate_{name}': datastream.data_loader(
@@ -54,21 +49,26 @@ def train(config):
             batch_size=config['batch_size'],
             num_workers=config['n_workers'],
             n_batches_per_epoch=config['n_batches_per_epoch'],
-            worker_init_fn=partial(worker_init, config['seed'], trainer),
+            worker_init_fn=partial(worker_init, config['seed']),
             collate_fn=tuple,
         )
     )
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
-    early_stopping = workflow.EarlyStopping()
-    # gradient_metrics = metrics.gradient_metrics()
+    early_stopping = wildfire.EarlyStopping()
+    gradient_metrics = wildfire.Metrics(
+        name='gradient',
+        tensorboard_logger=tensorboard_logger,
+        metrics=dict(
+            loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
+        ),
+    )
 
-    for epoch in tqdm(range(config['max_epochs'])):
+    for epoch in wildfire.Epochs(config['max_epochs']):
 
-        with workflow.torch.module_train(model):
-            for examples in workflow.ProgressBar(
-                gradient_data_loader
-                # gradient_data_loader, metrics=gradient_metrics[['loss']]
+        with wildfire.module_train(model):
+            for examples in wildfire.ProgressBar(
+                gradient_data_loader, metrics=gradient_metrics[['loss']]
             ):
                 predictions = model.predictions(
                     architecture.FeatureBatch.from_examples(examples)
@@ -78,30 +78,47 @@ def train(config):
                 optimizer.step()
                 optimizer.zero_grad()
 
-                # gradient_metrics = gradient_metrics.update(
-                #     examples, predictions, loss
-                # )
-                # gradient_metrics.log_()
-
                 # optional: schedule learning rate
 
-        with workflow.torch.module_eval(model), torch.no_grad:
-            for name, data_loader in evaluate_data_loaders:
-                # evaluate_metrics = metrics.evaluate_metrics()
+                (
+                    gradient_metrics
+                    .update_(examples, predictions.detach(), loss.detach().cpu().numpy())
+                    .log_()
+                )
+        gradient_metrics.print()
 
-                for examples in tqdm(data_loader):
+        evaluate_metrics = {
+            name: wildfire.Metrics(
+                name=name,
+                tensorboard_logger=tensorboard_logger,
+                metrics=dict(
+                    loss=wildfire.MapMetric(
+                        lambda examples, predictions, loss: loss
+                    ),
+                ),
+            )
+            for name in evaluate_data_loaders.keys()
+        }
+
+        with wildfire.module_eval(model), torch.no_grad():
+            for name, data_loader in evaluate_data_loaders.items():
+                for examples in tqdm(data_loader, desc=name, leave=False):
                     predictions = model.predictions(
                         architecture.FeatureBatch.from_examples(examples)
                     )
                     loss = predictions.loss(examples)
 
-                #     evaluate_metrics = evaluate_metrics.update(
-                #         examples, predictions, loss
-                #     )
-                # evaluate_metrics.log_()
+                    evaluate_metrics[name].update_(
+                        examples, predictions.detach(), loss.detach().cpu().numpy()
+                    )
+                evaluate_metrics[name].log_().print()
 
-        early_stopping = early_stopping.score(tensorboard_logger)
+        early_stopping = early_stopping.score(
+            -evaluate_metrics['evaluate_early_stopping']['loss'].compute()
+        )
         if early_stopping.scores_since_improvement == 0:
-            torch.save(train_state, 'model_checkpoint.pt')
-        elif early_stopping.scores_since_improvement > patience:
+            torch.save(model.state_dict(), 'model.pt')
+            torch.save(optimizer.state_dict(), 'optimizer.pt')
+        elif early_stopping.scores_since_improvement > 5:
             break
+        early_stopping.print()

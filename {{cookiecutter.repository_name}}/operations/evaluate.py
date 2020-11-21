@@ -12,30 +12,13 @@ import random
 import argparse
 import torch
 import torch.nn.functional as F
-import ignite
-from ignite.engine import Engine, Events
-from ignite.contrib.handlers.tensorboard_logger import (
-    TensorboardLogger, OutputHandler
-)
 import logging
-import workflow
-from workflow.functional import starcompose
-from workflow.torch import set_seeds
-from workflow.ignite import worker_init, evaluator
-from workflow.ignite.handlers.learning_rate import (
-    LearningRateScheduler, warmup, cyclical
-)
-from workflow.ignite.handlers import (
-    EpochLogger,
-    MetricsLogger,
-    ProgressBar
-)
+import wildfire
+from wildfire.functional import starcompose
+from wildfire import set_seeds, worker_init
 from datastream import Datastream
 
 from {{cookiecutter.package_name}} import datastream, architecture, metrics
-
-logging.getLogger('ignite').setLevel(logging.WARNING)
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 def evaluate(config):
@@ -43,25 +26,10 @@ def evaluate(config):
 
     model = architecture.Model().to(device)
 
-    train_state = dict(model=model)
-
-    print('Loading model checkpoint')
-    workflow.ignite.handlers.ModelCheckpoint.load(
-        train_state, 'model/checkpoints', device
-    )
-
-
-    @workflow.ignite.decorators.evaluate(model)
-    def evaluate_batch(engine, examples):
-        predictions = model.predictions(
-            architecture.FeatureBatch.from_examples(examples)
-        )
-        loss = predictions.loss(examples)
-        return dict(
-            examples=examples,
-            predictions=predictions.cpu().detach(),
-            loss=loss,
-        )
+    # print('Loading model checkpoint')
+    # wildfire.ignite.handlers.ModelCheckpoint.load(
+    #     train_state, 'model/checkpoints', device
+    # )
 
     evaluate_data_loaders = {
         f'evaluate_{name}': datastream.data_loader(
@@ -74,13 +42,28 @@ def evaluate(config):
 
     tensorboard_logger = TensorboardLogger(log_dir='tb')
 
-    for desciption, data_loader in evaluate_data_loaders.items():
-        engine = evaluator(
-            evaluate_batch, desciption,
-            metrics.evaluate_metrics(),
-            tensorboard_logger,
-        )
-        engine.run(data=data_loader)
+    with wildfire.module_eval(model), torch.no_grad():
+        for name, data_loader in evaluate_data_loaders.items():
+
+            metrics = wildfire.Metrics(
+                name=name,
+                tensorboard_logger=tensorboard_logger,
+                metrics=dict(
+                    loss=wildfire.MapMetric(
+                        lambda examples, predictions, loss: loss
+                    ),
+                ),
+            )
+
+            for examples, targets in tqdm(data_loader, desc=name, leave=False):
+                predictions = model.predictions(
+                    architecture.FeatureBatch.from_examples(examples)
+                )
+                loss = predictions.loss(examples)
+                metrics[name].update_(
+                    examples, predictions, loss
+                )
+            metrics[name].log_().print()
 
 
 if __name__ == '__main__':

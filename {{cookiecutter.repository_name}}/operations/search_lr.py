@@ -2,19 +2,9 @@ import argparse
 import os
 from pathlib import Path
 import json
-import logging
-from functools import partial
 import torch
-from workflow.functional import starcompose
-from workflow.ignite import worker_init
-from workflow.ignite.handlers.learning_rate import (
-    LearningRateScheduler, warmup, cyclical
-)
 
 from {{cookiecutter.package_name}} import train
-
-logging.getLogger('ignite').setLevel(logging.WARNING)
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 if __name__ == '__main__':

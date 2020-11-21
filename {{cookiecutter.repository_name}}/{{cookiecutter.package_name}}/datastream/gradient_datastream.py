@@ -1,16 +1,13 @@
 import numpy as np
 from datastream import Datastream
 
-from {{cookiecutter.package_name}}.datastream import (
-    evaluate_datastreams, augmenter
-)
+from {{cookiecutter.package_name}} import datastream
 from {{cookiecutter.package_name}}.problem import settings
 
 
 def GradientDatastream():
-    dataset = evaluate_datastreams()['gradient'].dataset
-    
-    augmenter_ = augmenter()
+    dataset = datastream.datasets()['gradient']
+    augmenter = datastream.augmenter()
     return (
         Datastream.merge([
             Datastream(dataset.subset(
@@ -18,5 +15,5 @@ def GradientDatastream():
             ))
             for class_name in settings.CLASS_NAMES
         ])
-        .map(lambda example: example.augmented(augmenter_))
+        .map(lambda example: example.augmented(augmenter))
     )

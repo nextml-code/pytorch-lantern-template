@@ -34,15 +34,6 @@ def train(config):
     #     )
     #     wildfire.set_learning_rate(optimizer, config['learning_rate'])
 
-    evaluate_data_loaders = {
-        f'evaluate_{name}': datastream.data_loader(
-            batch_size=config['eval_batch_size'],
-            num_workers=config['n_workers'],
-            collate_fn=tuple,
-        )
-        for name, datastream in datastream.evaluate_datastreams().items()
-    }
-
     gradient_data_loader = (
         datastream.GradientDatastream()
         .data_loader(
@@ -53,6 +44,18 @@ def train(config):
             collate_fn=tuple,
         )
     )
+
+    evaluate_data_loaders = {
+        f'evaluate_{name}': (
+            datastream.take(128)
+            .data_loader(
+                batch_size=config['eval_batch_size'],
+                num_workers=config['n_workers'],
+                collate_fn=tuple,
+            )
+        )
+        for name, datastream in datastream.evaluate_datastreams().items()
+    }
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     early_stopping = wildfire.EarlyStopping()

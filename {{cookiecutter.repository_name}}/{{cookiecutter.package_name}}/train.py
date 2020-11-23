@@ -62,9 +62,7 @@ def train(config):
     gradient_metrics = wildfire.Metrics(
         name='gradient',
         tensorboard_logger=tensorboard_logger,
-        metrics=dict(
-            loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
-        ),
+        metrics=metrics.gradient_metrics(),
     )
 
     for epoch in wildfire.Epochs(config['max_epochs']):
@@ -94,11 +92,7 @@ def train(config):
             name: wildfire.Metrics(
                 name=name,
                 tensorboard_logger=tensorboard_logger,
-                metrics=dict(
-                    loss=wildfire.MapMetric(
-                        lambda examples, predictions, loss: loss
-                    ),
-                ),
+                metrics=metrics.evaluate_metrics(),
             )
             for name in evaluate_data_loaders.keys()
         }

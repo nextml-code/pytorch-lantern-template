@@ -1,14 +1,7 @@
-import numpy as np
 import wildfire
 
 
-def train_metrics():
-    return dict(
-        loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
-    )
-
-
-def progress_metrics():
+def gradient_metrics():
     return dict(
         loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
     )

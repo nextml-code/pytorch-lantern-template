@@ -27,12 +27,11 @@ def train(config):
         model.parameters(), lr=config['learning_rate']
     )
 
-    # if Path('model').exists():
-    #     print('Loading model checkpoint')
-    #     wildfire.ignite.handlers.ModelCheckpoint.load(
-    #         train_state, 'model/checkpoints', device
-    #     )
-    #     wildfire.set_learning_rate(optimizer, config['learning_rate'])
+    if Path('model').exists():
+        print('Loading model checkpoint')
+        model.load_state_dict(torch.load('model/model.pt'))
+        optimizer.load_state_dict(torch.load('model/optimizer.pt'))
+        wildfire.set_learning_rate(optimizer, config['learning_rate'])
 
     gradient_data_loader = (
         datastream.GradientDatastream()

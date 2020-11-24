@@ -13,9 +13,9 @@ import argparse
 import torch
 import torch.nn.functional as F
 import logging
-import wildfire
-from wildfire.functional import starcompose
-from wildfire import set_seeds, worker_init
+import lantern
+from lantern.functional import starcompose
+from lantern import set_seeds, worker_init
 from datastream import Datastream
 
 from {{cookiecutter.package_name}} import datastream, architecture, metrics
@@ -27,7 +27,7 @@ def evaluate(config):
     model = architecture.Model().to(device)
 
     # print('Loading model checkpoint')
-    # wildfire.ignite.handlers.ModelCheckpoint.load(
+    # lantern.ignite.handlers.ModelCheckpoint.load(
     #     train_state, 'model/checkpoints', device
     # )
 
@@ -42,14 +42,14 @@ def evaluate(config):
 
     tensorboard_logger = TensorboardLogger(log_dir='tb')
 
-    with wildfire.module_eval(model), torch.no_grad():
+    with lantern.module_eval(model), torch.no_grad():
         for name, data_loader in evaluate_data_loaders.items():
 
-            metrics = wildfire.Metrics(
+            metrics = lantern.Metrics(
                 name=name,
                 tensorboard_logger=tensorboard_logger,
                 metrics=dict(
-                    loss=wildfire.MapMetric(
+                    loss=lantern.MapMetric(
                         lambda examples, predictions, loss: loss
                     ),
                 ),

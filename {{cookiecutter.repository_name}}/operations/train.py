@@ -5,7 +5,7 @@ import json
 import logging
 from functools import partial
 import torch
-from wildfire.functional import starcompose
+from lantern.functional import starcompose
 
 from {{cookiecutter.package_name}} import train
 

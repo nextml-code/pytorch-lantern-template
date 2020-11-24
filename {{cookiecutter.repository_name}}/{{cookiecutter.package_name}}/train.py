@@ -8,9 +8,9 @@ import torch
 import torch.utils.tensorboard
 import torch.nn.functional as F
 import logging
-import wildfire
-from wildfire.functional import starcompose
-from wildfire import set_seeds, worker_init
+import lantern
+from lantern.functional import starcompose
+from lantern import set_seeds, worker_init
 from datastream import Datastream
 
 from {{cookiecutter.package_name}} import (
@@ -31,7 +31,7 @@ def train(config):
         print('Loading model checkpoint')
         model.load_state_dict(torch.load('model/model.pt'))
         optimizer.load_state_dict(torch.load('model/optimizer.pt'))
-        wildfire.set_learning_rate(optimizer, config['learning_rate'])
+        lantern.set_learning_rate(optimizer, config['learning_rate'])
 
     gradient_data_loader = (
         datastream.GradientDatastream()
@@ -57,17 +57,17 @@ def train(config):
     }
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
-    early_stopping = wildfire.EarlyStopping()
-    gradient_metrics = wildfire.Metrics(
+    early_stopping = lantern.EarlyStopping()
+    gradient_metrics = lantern.Metrics(
         name='gradient',
         tensorboard_logger=tensorboard_logger,
         metrics=metrics.gradient_metrics(),
     )
 
-    for epoch in wildfire.Epochs(config['max_epochs']):
+    for epoch in lantern.Epochs(config['max_epochs']):
 
-        with wildfire.module_train(model):
-            for examples in wildfire.ProgressBar(
+        with lantern.module_train(model):
+            for examples in lantern.ProgressBar(
                 gradient_data_loader, metrics=gradient_metrics[['loss']]
             ):
                 predictions = model.predictions(
@@ -88,7 +88,7 @@ def train(config):
         gradient_metrics.print()
 
         evaluate_metrics = {
-            name: wildfire.Metrics(
+            name: lantern.Metrics(
                 name=name,
                 tensorboard_logger=tensorboard_logger,
                 metrics=metrics.evaluate_metrics(),
@@ -96,7 +96,7 @@ def train(config):
             for name in evaluate_data_loaders.keys()
         }
 
-        with wildfire.module_eval(model), torch.no_grad():
+        with lantern.module_eval(model), torch.no_grad():
             for name, data_loader in evaluate_data_loaders.items():
                 for examples in tqdm(data_loader, desc=name, leave=False):
                     predictions = model.predictions(

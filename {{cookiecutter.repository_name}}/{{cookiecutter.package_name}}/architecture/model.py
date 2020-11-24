@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from wildfire import ModuleCompose, module_device
+from lantern import ModuleCompose, module_device
 
 from {{cookiecutter.package_name}} import problem, architecture
 

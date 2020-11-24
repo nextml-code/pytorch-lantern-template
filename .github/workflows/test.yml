@@ -23,6 +23,16 @@ jobs:
         pip install cookiecutter
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 
+    - name: Setup template
+      run: |
+        source $HOME/.poetry/env
+        ./test/create.sh
+
+    - name: Lint template
+      run: |
+        source $HOME/.poetry/env
+        ./test/lint.sh
+
     - name: Run template
       run: |
         source $HOME/.poetry/env

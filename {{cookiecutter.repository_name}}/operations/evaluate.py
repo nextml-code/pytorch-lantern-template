@@ -1,17 +1,14 @@
 import argparse
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 import os
 from pathlib import Path
 import json
 from functools import partial
 import numpy as np
 import random
-import argparse
+from tqdm import tqdm
 import torch
 import torch.nn.functional as F
+import torch.utils.tensorboard
 import logging
 import lantern
 from lantern.functional import starcompose
@@ -26,10 +23,9 @@ def evaluate(config):
 
     model = architecture.Model().to(device)
 
-    # print('Loading model checkpoint')
-    # lantern.ignite.handlers.ModelCheckpoint.load(
-    #     train_state, 'model/checkpoints', device
-    # )
+    if Path("model").exists():
+        print("Loading model checkpoint")
+        model.load_state_dict(torch.load("model/model.pt"))
 
     evaluate_data_loaders = {
         f"evaluate_{name}": datastream.data_loader(
@@ -40,26 +36,25 @@ def evaluate(config):
         for name, datastream in datastream.evaluate_datastreams().items()
     }
 
-    tensorboard_logger = TensorboardLogger(log_dir="tb")
+    tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
+    evaluate_metrics = {
+        name: lantern.Metrics(
+            name=name,
+            tensorboard_logger=tensorboard_logger,
+            metrics=metrics.evaluate_metrics(),
+        )
+        for name in evaluate_data_loaders.keys()
+    }
 
     with lantern.module_eval(model), torch.no_grad():
         for name, data_loader in evaluate_data_loaders.items():
-
-            metrics = lantern.Metrics(
-                name=name,
-                tensorboard_logger=tensorboard_logger,
-                metrics=dict(
-                    loss=lantern.MapMetric(lambda examples, predictions, loss: loss),
-                ),
-            )
-
-            for examples, targets in tqdm(data_loader, desc=name, leave=False):
+            for examples in tqdm(data_loader, desc=name, leave=False):
                 predictions = model.predictions(
                     architecture.FeatureBatch.from_examples(examples)
                 )
                 loss = predictions.loss(examples)
-                metrics[name].update_(examples, predictions, loss)
-            metrics[name].log_().print()
+                evaluate_metrics[name].update_(examples, predictions.cpu(), loss.cpu())
+            evaluate_metrics[name].log_().print()
 
 
 if __name__ == "__main__":

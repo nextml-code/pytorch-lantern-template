@@ -8,13 +8,17 @@ Development
 Installation
 ------------
 
+Install `poetry <https://github.com/python-poetry/poetry>`_:
+
 .. code-block::
 
-    virtualenv venv --python python3.8
-    source venv/bin/activate
-    pip install -r requirements.txt
-    pip install -r dev_requirements.txt
-    guild run prepare
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+
+Setup environment:
+
+.. code-block::
+
+    poetry install
 
 Training
 --------
@@ -25,3 +29,4 @@ Training
     guild run train
     guild run retrain model=<model-hash>
     guild run evaluate model=<model-hash>
+    guild tensorboard <model-hash>

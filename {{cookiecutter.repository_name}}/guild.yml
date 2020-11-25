@@ -17,13 +17,6 @@
       main: operations/prepare
       flags-import: all
       output-scalars: off
-    search_lr:
-      main: operations/search_lr
-      flags-import: all
-      output-scalars: off
-      requires:
-        - prepare
-        - splits
     train:
       main: operations/train
       flags-import: all

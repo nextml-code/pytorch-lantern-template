@@ -22,7 +22,7 @@ from {{cookiecutter.package_name}} import datastream, architecture, metrics
 
 
 def evaluate(config):
-    device = torch.device('cuda' if config['use_cuda'] else 'cpu')
+    device = torch.device("cuda" if config["use_cuda"] else "cpu")
 
     model = architecture.Model().to(device)
 
@@ -32,15 +32,15 @@ def evaluate(config):
     # )
 
     evaluate_data_loaders = {
-        f'evaluate_{name}': datastream.data_loader(
-            batch_size=config['eval_batch_size'],
-            num_workers=config['n_workers'],
+        f"evaluate_{name}": datastream.data_loader(
+            batch_size=config["eval_batch_size"],
+            num_workers=config["n_workers"],
             collate_fn=tuple,
         )
         for name, datastream in datastream.evaluate_datastreams().items()
     }
 
-    tensorboard_logger = TensorboardLogger(log_dir='tb')
+    tensorboard_logger = TensorboardLogger(log_dir="tb")
 
     with lantern.module_eval(model), torch.no_grad():
         for name, data_loader in evaluate_data_loaders.items():
@@ -49,9 +49,7 @@ def evaluate(config):
                 name=name,
                 tensorboard_logger=tensorboard_logger,
                 metrics=dict(
-                    loss=lantern.MapMetric(
-                        lambda examples, predictions, loss: loss
-                    ),
+                    loss=lantern.MapMetric(lambda examples, predictions, loss: loss),
                 ),
             )
 
@@ -60,16 +58,14 @@ def evaluate(config):
                     architecture.FeatureBatch.from_examples(examples)
                 )
                 loss = predictions.loss(examples)
-                metrics[name].update_(
-                    examples, predictions, loss
-                )
+                metrics[name].update_(examples, predictions, loss)
             metrics[name].log_().print()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--eval_batch_size', type=int, default=128)
-    parser.add_argument('--n_workers', default=2, type=int)
+    parser.add_argument("--eval_batch_size", type=int, default=128)
+    parser.add_argument("--n_workers", default=2, type=int)
 
     try:
         __IPYTHON__
@@ -81,9 +77,9 @@ if __name__ == '__main__':
     config.update(
         seed=1,
         use_cuda=torch.cuda.is_available(),
-        run_id=os.getenv('RUN_ID'),
+        run_id=os.getenv("RUN_ID"),
     )
 
-    Path('config.json').write_text(json.dumps(config))
+    Path("config.json").write_text(json.dumps(config))
 
     evaluate(config)

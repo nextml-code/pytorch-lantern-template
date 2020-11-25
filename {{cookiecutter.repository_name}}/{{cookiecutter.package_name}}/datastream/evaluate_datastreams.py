@@ -8,8 +8,8 @@ def evaluate_datastreams():
     return {
         split_name: Datastream(dataset)
         for split_name, dataset in dict(
-            gradient=datasets['gradient'],
-            early_stopping=datasets['early_stopping'],
-            compare=datasets['compare'],
+            gradient=datasets["gradient"],
+            early_stopping=datasets["early_stopping"],
+            compare=datasets["compare"],
         ).items()
     }

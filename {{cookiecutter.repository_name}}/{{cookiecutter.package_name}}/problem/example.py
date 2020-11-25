@@ -29,10 +29,5 @@ class Example(BaseModel):
         return self.representation()._repr_png_
 
     def augmented(self, augmenter):
-        image = Image.fromarray(
-            augmenter.augment(image=np.array(self.image))
-        )
-        return Example(
-            image=image,
-            class_name=self.class_name
-        )
+        image = Image.fromarray(augmenter.augment(image=np.array(self.image)))
+        return Example(image=image, class_name=self.class_name)

@@ -28,21 +28,18 @@ class Prediction(BaseModel):
         if example:
             image = example.image.copy().resize((256, 256))
         else:
-            image = Image.new('L', (256, 256))
+            image = Image.new("L", (256, 256))
 
-        probabilities = dict(zip(
-            problem.settings.CLASS_NAMES,
-            self.probabilities,
-        ))
+        probabilities = dict(
+            zip(
+                problem.settings.CLASS_NAMES,
+                self.probabilities,
+            )
+        )
 
         draw = ImageDraw.Draw(image)
         for index, (class_name, probability) in enumerate(probabilities.items()):
-            tools.text_(
-                draw,
-                f'{class_name}: {probability:.2f}',
-                10,
-                5 + 10 * index
-            )
+            tools.text_(draw, f"{class_name}: {probability:.2f}", 10, 5 + 10 * index)
         return image
 
     @property
@@ -68,7 +65,7 @@ class PredictionBatch(BaseModel):
     def __iter__(self):
         for index in range(len(self)):
             yield self[index]
-    
+
     @property
     def probabilities(self):
         return self.logits.detach().cpu().sigmoid()
@@ -76,12 +73,12 @@ class PredictionBatch(BaseModel):
     def stack_class_indices(self, examples):
         return torch.as_tensor(
             np.stack([example.class_index for example in examples]),
-            device=self.logits.device
+            device=self.logits.device,
         )
 
     def loss(self, examples):
         return self.cross_entropy(examples)
-    
+
     def cross_entropy(self, examples):
         return F.cross_entropy(
             self.logits,
@@ -89,21 +86,29 @@ class PredictionBatch(BaseModel):
         )
 
     def cpu(self):
-        return PredictionBatch(**{
-            name: (
-                value.cpu() if isinstance(value, torch.Tensor)
-                else [v.cpu() for v in value] if type(value) == list
-                else value
-            )
-            for name, value in super().__iter__()
-        })
+        return PredictionBatch(
+            **{
+                name: (
+                    value.cpu()
+                    if isinstance(value, torch.Tensor)
+                    else [v.cpu() for v in value]
+                    if type(value) == list
+                    else value
+                )
+                for name, value in super().__iter__()
+            }
+        )
 
     def detach(self):
-        return PredictionBatch(**{
-            name: (
-                value.detach() if isinstance(value, torch.Tensor)
-                else [v.detach() for v in value] if type(value) == list
-                else value
-            )
-            for name, value in super().__iter__()
-        })
+        return PredictionBatch(
+            **{
+                name: (
+                    value.detach()
+                    if isinstance(value, torch.Tensor)
+                    else [v.detach() for v in value]
+                    if type(value) == list
+                    else value
+                )
+                for name, value in super().__iter__()
+            }
+        )

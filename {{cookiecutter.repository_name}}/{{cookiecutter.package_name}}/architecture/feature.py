@@ -8,9 +8,9 @@ from {{cookiecutter.package_name}} import problem
 
 
 def standardized(image: Image.Image):
-    return torch.stack([
-        torch.as_tensor(np.array(image, dtype=np.float32))
-    ]) / 255 * 2 - 1
+    return (
+        torch.stack([torch.as_tensor(np.array(image, dtype=np.float32))]) / 255 * 2 - 1
+    )
 
 
 class Feature(BaseModel):
@@ -34,15 +34,11 @@ class FeatureBatch(BaseModel):
 
     @staticmethod
     def from_examples(examples: List[problem.Example]):
-        return FeatureBatch.from_images(
-            [example.image for example in examples]
-        )
+        return FeatureBatch.from_images([example.image for example in examples])
 
     @staticmethod
     def from_images(images: List[Image.Image]):
-        return FeatureBatch(features=[
-            Feature.from_image(image) for image in images
-        ])
+        return FeatureBatch(features=[Feature.from_image(image) for image in images])
 
     def stack(self):
         return torch.stack([feature.data for feature in self.features])

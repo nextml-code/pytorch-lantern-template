@@ -8,4 +8,4 @@ set -o nounset
 cd "$PROJECT_PATH"
 
 echo $PWD
-poetry run black \{\{cookiecutter.repository_name\}\} --check
+poetry run black . --check

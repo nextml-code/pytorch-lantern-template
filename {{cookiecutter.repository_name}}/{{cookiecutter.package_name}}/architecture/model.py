@@ -30,7 +30,4 @@ class Model(nn.Module):
         return architecture.PredictionBatch(logits=self.logits(prepared))
 
     def predictions(self, feature_batch: architecture.FeatureBatch):
-        return self.forward(
-            feature_batch.stack()
-            .to(module_device(self))
-        )
+        return self.forward(feature_batch.stack().to(module_device(self)))

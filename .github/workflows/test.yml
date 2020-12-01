@@ -33,6 +33,11 @@ jobs:
         source $HOME/.poetry/env
         ./test/lint.sh
 
+    - name: Test template
+      run: |
+        source $HOME/.poetry/env
+        ./test/test.sh
+
     - name: Run template
       run: |
         source $HOME/.poetry/env

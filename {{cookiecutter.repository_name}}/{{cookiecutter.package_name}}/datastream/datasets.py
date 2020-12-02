@@ -1,7 +1,3 @@
-import numpy as np
-import pandas as pd
-from datastream import Datastream
-
 from {{cookiecutter.package_name}} import problem
 
 

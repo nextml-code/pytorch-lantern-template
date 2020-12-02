@@ -1,8 +1,7 @@
-import numpy as np
 from datastream import Datastream
 
-from {{cookiecutter.package_name}} import datastream
-from {{cookiecutter.package_name}}.problem import settings
+from mnist_template import datastream
+from mnist_template.problem import settings
 
 
 def GradientDatastream():
@@ -13,4 +12,4 @@ def GradientDatastream():
             Datastream(dataset.subset(lambda df: df["class_name"] == class_name))
             for class_name in settings.CLASS_NAMES
         ]
-    ).map(lambda example: example.augmented(augmenter))
+    ).map(lambda example: example.augment(augmenter))

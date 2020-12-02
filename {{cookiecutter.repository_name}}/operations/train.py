@@ -1,19 +1,13 @@
 import argparse
 import os
 import json
-import random
 from functools import partial
 from pathlib import Path
-import numpy as np
 from tqdm import tqdm
 import torch
 import torch.utils.tensorboard
-import torch.nn.functional as F
-import logging
 import lantern
-from lantern.functional import starcompose
 from lantern import set_seeds, worker_init
-from datastream import Datastream
 
 from {{cookiecutter.package_name}} import datastream, architecture, metrics, log_examples
 
@@ -77,6 +71,7 @@ def train(config):
                         examples, predictions.detach(), loss.detach().cpu().numpy()
                     ).log_()
                 )
+        log_examples(tensorboard_logger, "gradient", epoch, examples, predictions)
         gradient_metrics.print()
 
         evaluate_metrics = {
@@ -99,6 +94,7 @@ def train(config):
                     evaluate_metrics[name].update_(
                         examples, predictions.detach(), loss.detach().cpu().numpy()
                     )
+                log_examples(tensorboard_logger, name, epoch, examples, predictions)
                 evaluate_metrics[name].log_().print()
 
         early_stopping = early_stopping.score(

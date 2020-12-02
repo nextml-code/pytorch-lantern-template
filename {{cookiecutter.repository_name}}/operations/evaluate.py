@@ -2,20 +2,12 @@ import argparse
 import os
 from pathlib import Path
 import json
-from functools import partial
-import numpy as np
-import random
 from tqdm import tqdm
 import torch
-import torch.nn.functional as F
 import torch.utils.tensorboard
-import logging
 import lantern
-from lantern.functional import starcompose
-from lantern import set_seeds, worker_init
-from datastream import Datastream
 
-from {{cookiecutter.package_name}} import datastream, architecture, metrics
+from mnist_template import datastream, architecture, metrics
 
 
 def evaluate(config):

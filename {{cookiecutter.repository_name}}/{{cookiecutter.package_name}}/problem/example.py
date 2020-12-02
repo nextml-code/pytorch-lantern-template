@@ -1,5 +1,4 @@
-from itertools import product
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 import numpy as np
 from pydantic import BaseModel
 
@@ -28,6 +27,17 @@ class Example(BaseModel):
     def _repr_png_(self):
         return self.representation()._repr_png_
 
-    def augmented(self, augmenter):
+    def augment(self, augmenter):
         image = Image.fromarray(augmenter.augment(image=np.array(self.image)))
         return Example(image=image, class_name=self.class_name)
+
+
+def test_example():
+    from imgaug import augmenters as iaa
+
+    (
+        Example(
+            image=Image.fromarray(np.zeros((256, 256), np.uint8)),
+            class_name="zero",
+        ).augment(iaa.Affine(scale=(0.9, 1.1)))
+    )

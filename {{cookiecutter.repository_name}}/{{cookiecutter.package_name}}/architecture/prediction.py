@@ -1,10 +1,8 @@
-from itertools import product
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageDraw
 import numpy as np
 import torch
 import torch.nn.functional as F
 from pydantic import BaseModel
-from typing import Tuple
 
 from {{cookiecutter.package_name}} import problem, tools
 

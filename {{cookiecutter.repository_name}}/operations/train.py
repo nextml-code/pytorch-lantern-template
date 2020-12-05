@@ -71,8 +71,8 @@ def train(config):
                         examples, predictions.detach(), loss.detach().cpu().numpy()
                     ).log_()
                 )
-        log_examples(tensorboard_logger, "gradient", epoch, examples, predictions)
         gradient_metrics.print()
+        log_examples(tensorboard_logger, "gradient", epoch, examples, predictions)
 
         evaluate_metrics = {
             name: lantern.Metrics(
@@ -94,8 +94,8 @@ def train(config):
                     evaluate_metrics[name].update_(
                         examples, predictions.detach(), loss.detach().cpu().numpy()
                     )
-                log_examples(tensorboard_logger, name, epoch, examples, predictions)
                 evaluate_metrics[name].log_().print()
+                log_examples(tensorboard_logger, name, epoch, examples, predictions)
 
         early_stopping = early_stopping.score(
             -evaluate_metrics["evaluate_early_stopping"]["loss"].compute()
@@ -106,6 +106,8 @@ def train(config):
         elif early_stopping.scores_since_improvement > 5:
             break
         early_stopping.print()
+
+        tensorboard_logger.close()
 
 
 if __name__ == "__main__":

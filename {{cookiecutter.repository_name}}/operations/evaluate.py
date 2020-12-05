@@ -48,6 +48,8 @@ def evaluate(config):
                 evaluate_metrics[name].update_(examples, predictions.cpu(), loss.cpu())
             evaluate_metrics[name].log_().print()
 
+    tensorboard_logger.close()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

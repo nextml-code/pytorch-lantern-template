@@ -14,7 +14,7 @@
           - checkpoints
   operations:
     prepare:
-      main: operations/prepare
+      main: operations.prepare
       flags-import: all
       output-scalars: off
     train:
@@ -25,7 +25,7 @@
         - prepare
         - splits
     retrain:
-      main: operations/train
+      main: operations.train
       flags-import: all
       output-scalars: off
       requires:
@@ -33,7 +33,7 @@
         - prepare
         - splits
     evaluate:
-      main: operations/evaluate
+      main: operations.evaluate
       flags-import: all
       output-scalars: off
       requires:

@@ -1,11 +1,11 @@
 from PIL import Image, ImageDraw
 import numpy as np
-from pydantic import BaseModel
+from lantern import FunctionalBase
 
 from {{cookiecutter.package_name}} import problem, tools
 
 
-class Example(BaseModel):
+class Example(FunctionalBase):
     image: Image.Image
     class_name: str
 

@@ -2,7 +2,7 @@ from typing import List
 import numpy as np
 import torch
 from PIL import Image
-from pydantic import BaseModel
+from lantern import FunctionalBase
 
 from {{cookiecutter.package_name}} import problem
 
@@ -13,7 +13,7 @@ def standardized(image: Image.Image):
     )
 
 
-class Feature(BaseModel):
+class Feature(FunctionalBase):
     data: torch.Tensor
 
     class Config:
@@ -25,7 +25,7 @@ class Feature(BaseModel):
         return Feature(data=standardized(image))
 
 
-class FeatureBatch(BaseModel):
+class FeatureBatch(FunctionalBase):
     features: List[Feature]
 
     class Config:

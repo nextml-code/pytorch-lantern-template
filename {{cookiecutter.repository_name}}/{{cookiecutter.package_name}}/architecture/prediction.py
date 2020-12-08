@@ -2,12 +2,12 @@ from PIL import Image, ImageDraw
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pydantic import BaseModel
+from lantern import FunctionalBase
 
 from {{cookiecutter.package_name}} import problem, tools
 
 
-class Prediction(BaseModel):
+class Prediction(FunctionalBase):
     logits: torch.Tensor
 
     class Config:
@@ -45,7 +45,7 @@ class Prediction(BaseModel):
         return self.representation()._repr_png_
 
 
-class PredictionBatch(BaseModel):
+class PredictionBatch(FunctionalBase):
     logits: torch.Tensor
 
     class Config:

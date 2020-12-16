@@ -40,6 +40,10 @@ flake8 = "^3.8.4"
 black = "^20.8b1"
 pytest = "^6.1.2"
 
+[[tool.poetry.source]]
+name = "packagr"
+url = "https://api.packagr.app/882TAwUpj/"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

@@ -3,7 +3,7 @@ name = "pytorch-lantern-template"
 version = "0.0.0"
 description = ""
 authors = ["Aiwizo AB"]
-license = "Apache 2"
+license = "Apache-2.0"
 
 [tool.poetry.dependencies]
 python = "^3.7"

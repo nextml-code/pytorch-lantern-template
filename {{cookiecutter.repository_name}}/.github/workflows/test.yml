@@ -28,9 +28,6 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install dependencies
-      env:
-        POETRY_HTTP_BASIC_PACKAGR_USERNAME: irrelevant-when-using-token
-        POETRY_HTTP_BASIC_PACKAGR_PASSWORD: ${{ secrets.PACKAGR_TOKEN }}
       run: |
         python -m pip install --upgrade pip
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python

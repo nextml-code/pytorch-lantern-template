@@ -2,9 +2,9 @@
 name = "{{cookiecutter.package_name}}"
 version = "0.0.1"
 description = "Placeholder description"
-authors = ["Aiwizo AB"]
+authors = ["{{cookiecutter.author}}"]
 readme = "README.rst"
-repository = "https://github.com/aiwizo/{{cookiecutter.repository_name}}"
+repository = "{{cookiecutter.repository}}"
 # some classifiers are added automatically, see https://python-poetry.org/docs/pyproject/#classifiers
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -39,10 +39,6 @@ pylint = "^2.6.0"
 flake8 = "^3.8.4"
 black = "^20.8b1"
 pytest = "^6.1.2"
-
-[[tool.poetry.source]]
-name = "packagr"
-url = "https://api.packagr.app/882TAwUpj/"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

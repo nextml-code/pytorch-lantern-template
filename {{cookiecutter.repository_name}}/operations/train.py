@@ -13,8 +13,9 @@ from {{cookiecutter.package_name}} import datastream, architecture, metrics, log
 
 
 def train(config):
-    set_seeds(config["seed"])
+    torch.set_grad_enabled(False)
     device = torch.device("cuda" if config["use_cuda"] else "cpu")
+    set_seeds(config["seed"])
 
     model = architecture.Model().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=config["learning_rate"])
@@ -44,7 +45,7 @@ def train(config):
         for name, datastream in datastream.evaluate_datastreams().items()
     }
 
-    tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
+    tensorboard_logger = torch.utils.tensorboard.SummaryWriter(log_dir="tb")
     early_stopping = lantern.EarlyStopping(tensorboard_logger=tensorboard_logger)
     gradient_metrics = lantern.Metrics(
         name="gradient",
@@ -58,11 +59,12 @@ def train(config):
             for examples in lantern.ProgressBar(
                 gradient_data_loader, metrics=gradient_metrics[["loss"]]
             ):
-                predictions = model.predictions(
-                    architecture.FeatureBatch.from_examples(examples)
-                )
-                loss = predictions.loss(examples)
-                loss.backward()
+                with torch.enable_grad():
+                    predictions = model.predictions(
+                        architecture.FeatureBatch.from_examples(examples)
+                    )
+                    loss = predictions.loss(examples)
+                    loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
 
@@ -83,7 +85,7 @@ def train(config):
             for name in evaluate_data_loaders.keys()
         }
 
-        with lantern.module_eval(model), torch.no_grad():
+        with lantern.module_eval(model):
             for name, data_loader in evaluate_data_loaders.items():
                 for examples in tqdm(data_loader, desc=name, leave=False):
                     predictions = model.predictions(

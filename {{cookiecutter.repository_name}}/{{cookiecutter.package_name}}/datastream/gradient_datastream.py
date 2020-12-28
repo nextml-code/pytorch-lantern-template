@@ -1,7 +1,7 @@
 from datastream import Datastream
 
-from mnist_template import datastream
-from mnist_template.problem import settings
+from {{cookiecutter.package_name}} import datastream
+from {{cookiecutter.package_name}}.problem import settings
 
 
 def GradientDatastream():

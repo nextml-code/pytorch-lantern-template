@@ -7,7 +7,7 @@ import torch
 import torch.utils.tensorboard
 import lantern
 
-from mnist_template import datastream, architecture, metrics
+from {{cookiecutter.package_name}} import datastream, architecture, metrics
 
 
 def evaluate(config):

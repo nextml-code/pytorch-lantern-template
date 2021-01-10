@@ -96,7 +96,7 @@ def train(config):
                     evaluate_metrics[name].update_(
                         examples, predictions.detach(), loss.detach().cpu().numpy()
                     )
-                evaluate_metrics[name].log_().print()
+                evaluate_metrics[name].log_(epoch).print()
                 log_examples(tensorboard_logger, name, epoch, examples, predictions)
 
         early_stopping = early_stopping.score(
@@ -105,7 +105,7 @@ def train(config):
         if early_stopping.scores_since_improvement == 0:
             torch.save(model.state_dict(), "model.pt")
             torch.save(optimizer.state_dict(), "optimizer.pt")
-        elif early_stopping.scores_since_improvement > 5:
+        elif early_stopping.scores_since_improvement > config["patience"]:
             break
         early_stopping.log(epoch).print()
 

@@ -40,6 +40,15 @@
         - model
         - prepare
         - splits
+    jupyter:
+      main: operations.jupyter
+      flags-import: all
+      output-scalars: off
+      requires:
+        - notebooks
+        - model
+        - prepare
+        - splits
   resources:
     model:
       name: model
@@ -54,3 +63,6 @@
     splits:
       sources:
         - {{cookiecutter.package_name}}/splits
+    notebooks:
+      sources:
+        - notebooks

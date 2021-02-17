@@ -25,7 +25,7 @@ prepared = starcompose(
 )
 
 
-class Feature(FunctionalBase):
+class StandardizedImage(FunctionalBase):
     data: torch.Tensor
 
     class Config:
@@ -34,23 +34,8 @@ class Feature(FunctionalBase):
 
     @staticmethod
     def from_image(image: Image.Image):
-        return Feature(data=prepared(image))
-
-
-class FeatureBatch(FunctionalBase):
-    features: List[Feature]
-
-    class Config:
-        arbitrary_types_allowed = True
-        allow_mutation = False
+        return StandardizedImage(data=prepared(image))
 
     @staticmethod
-    def from_examples(examples: List[problem.Example]):
-        return FeatureBatch.from_images([example.image for example in examples])
-
-    @staticmethod
-    def from_images(images: List[Image.Image]):
-        return FeatureBatch(features=[Feature.from_image(image) for image in images])
-
-    def stack(self):
-        return torch.stack([feature.data for feature in self.features])
+    def from_example(example: problem.Example):
+        return StandardizedImage.from_image(example.image)

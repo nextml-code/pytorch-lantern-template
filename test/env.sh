@@ -7,7 +7,7 @@ set -o nounset
 readonly TEST_DIR='.test-template'
 
 # Scaffold the project:
-readonly REPOSITORY_NAME='mnist-template'
+readonly REPOSITORY_NAME='cifar10-template'
 
 readonly PROJECT_PATH="$TEST_DIR/$REPOSITORY_NAME"
 

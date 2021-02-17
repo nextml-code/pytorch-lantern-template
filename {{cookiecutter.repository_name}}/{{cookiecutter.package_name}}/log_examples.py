@@ -12,12 +12,12 @@ def log_examples(logger, name, epoch, examples, predictions):
         f"{name}/predictions",
         np.stack(
             [
-                np.stack(
-                    [np.array(predictions[index].representation(examples[index]))],
-                    axis=-1,
+                np.array(
+                    predictions[index].representation(examples[index]),
+                    dtype=np.float32,
                 )
                 / 255
-                for index in indices
+                for index in range(min(5, len(predictions)))
             ]
         ),
         epoch,

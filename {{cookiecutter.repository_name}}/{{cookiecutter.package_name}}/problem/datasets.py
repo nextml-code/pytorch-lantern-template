@@ -6,7 +6,7 @@ from datastream import Dataset
 from {{cookiecutter.package_name}} import problem
 
 
-def MnistDataset(dataframe):
+def CifarDataset(dataframe):
     return (
         Dataset.from_dataframe(dataframe)
         .map(
@@ -31,6 +31,6 @@ def datasets():
     test_df = pd.read_csv("prepare" / problem.settings.TEST_CSV)
 
     return dict(
-        train=MnistDataset(train_df),
-        compare=MnistDataset(test_df),
+        train=CifarDataset(train_df),
+        compare=CifarDataset(test_df),
     )

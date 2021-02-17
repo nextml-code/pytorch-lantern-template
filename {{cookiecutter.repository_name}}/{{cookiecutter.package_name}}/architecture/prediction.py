@@ -26,7 +26,7 @@ class Prediction(FunctionalBase):
         if example:
             image = example.image.copy().resize((256, 256))
         else:
-            image = Image.new("L", (256, 256))
+            image = Image.new("RGB", (256, 256))
 
         probabilities = dict(
             zip(

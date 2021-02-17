@@ -9,7 +9,8 @@ from {{cookiecutter.package_name}} import problem
 
 def standardized(image: Image.Image):
     return (
-        torch.stack([torch.as_tensor(np.array(image, dtype=np.float32))]) / 255 * 2 - 1
+        torch.as_tensor(np.array(image, dtype=np.float32)).permute(2, 0, 1) / 255 * 2
+        - 1
     )
 
 

@@ -37,7 +37,7 @@ def test_example():
 
     (
         Example(
-            image=Image.fromarray(np.zeros((256, 256), np.uint8)),
-            class_name="zero",
+            image=Image.new("RGB", (256, 256)),
+            class_name=problem.settings.CLASS_NAMES[0],
         ).augment(iaa.Affine(scale=(0.9, 1.1)))
     )

@@ -7,23 +7,7 @@ from {{cookiecutter.package_name}} import problem
 
 # more realistic to have class names without a natural 1-to-1 mapping with
 # integers
-CLASS_TO_NAME = dict(
-    zip(
-        range(10),
-        [
-            "zero",
-            "one",
-            "two",
-            "three",
-            "four",
-            "five",
-            "six",
-            "seven",
-            "eight",
-            "nine",
-        ],
-    )
-)
+CLASS_TO_NAME = dict(zip(range(10), problem.settings.CLASS_NAMES))
 CACHE_ROOT = "cache"
 
 
@@ -62,12 +46,12 @@ if __name__ == "__main__":
         (
             problem.settings.TRAIN_CSV,
             Path("train"),
-            torchvision.datasets.MNIST(CACHE_ROOT, train=True, download=True),
+            torchvision.datasets.CIFAR10(CACHE_ROOT, train=True, download=True),
         ),
         (
             problem.settings.TEST_CSV,
             Path("test"),
-            torchvision.datasets.MNIST(CACHE_ROOT, train=False, download=True),
+            torchvision.datasets.CIFAR10(CACHE_ROOT, train=False, download=True),
         ),
     ]
 

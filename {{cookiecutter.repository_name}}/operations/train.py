@@ -26,20 +26,36 @@ def train(config):
         optimizer.load_state_dict(torch.load("model/optimizer.pt"))
         lantern.set_learning_rate(optimizer, config["learning_rate"])
 
-    gradient_data_loader = datastream.GradientDatastream().data_loader(
-        batch_size=config["batch_size"],
-        num_workers=config["n_workers"],
-        n_batches_per_epoch=config["n_batches_per_epoch"],
-        worker_init_fn=partial(worker_init, config["seed"]),
-        collate_fn=tuple,
+    gradient_data_loader = (
+        datastream.GradientDatastream()
+        .map(
+            lambda example: (
+                example,
+                architecture.StandardizedImage.from_example(example),
+            )
+        )
+        .data_loader(
+            batch_size=config["batch_size"],
+            n_batches_per_epoch=config["n_batches_per_epoch"],
+            collate_fn=lambda batch: list(zip(*batch)),
+            num_workers=config["n_workers"],
+            worker_init_fn=partial(worker_init, config["seed"]),
+        )
     )
 
     evaluate_data_loaders = {
         f"evaluate_{name}": (
-            datastream.take(128).data_loader(
+            datastream.map(
+                lambda example: (
+                    example,
+                    architecture.StandardizedImage.from_example(example),
+                )
+            )
+            .take(128)
+            .data_loader(
                 batch_size=config["eval_batch_size"],
+                collate_fn=lambda batch: list(zip(*batch)),
                 num_workers=config["n_workers"],
-                collate_fn=tuple,
             )
         )
         for name, datastream in datastream.evaluate_datastreams().items()
@@ -56,13 +72,11 @@ def train(config):
     for epoch in lantern.Epochs(config["max_epochs"]):
 
         with lantern.module_train(model):
-            for examples in lantern.ProgressBar(
+            for examples, features in lantern.ProgressBar(
                 gradient_data_loader, metrics=gradient_metrics[["loss"]]
             ):
                 with torch.enable_grad():
-                    predictions = model.predictions(
-                        architecture.FeatureBatch.from_examples(examples)
-                    )
+                    predictions = model.predictions(features)
                     loss = predictions.loss(examples)
                     loss.backward()
                 optimizer.step()
@@ -87,10 +101,8 @@ def train(config):
 
         with lantern.module_eval(model):
             for name, data_loader in evaluate_data_loaders.items():
-                for examples in tqdm(data_loader, desc=name, leave=False):
-                    predictions = model.predictions(
-                        architecture.FeatureBatch.from_examples(examples)
-                    )
+                for examples, features in tqdm(data_loader, desc=name, leave=False):
+                    predictions = model.predictions(features)
                     loss = predictions.loss(examples)
 
                     evaluate_metrics[name].update_(

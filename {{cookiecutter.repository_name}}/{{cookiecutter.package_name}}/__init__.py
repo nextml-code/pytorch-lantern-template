@@ -1,3 +1,4 @@
+from {{cookiecutter.package_name}} import settings
 from {{cookiecutter.package_name}} import problem
 from {{cookiecutter.package_name}} import datastream
 from {{cookiecutter.package_name}} import architecture

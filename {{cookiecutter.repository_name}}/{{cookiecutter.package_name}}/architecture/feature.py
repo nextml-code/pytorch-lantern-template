@@ -3,8 +3,13 @@ import numpy as np
 import torch
 from PIL import Image
 from lantern import FunctionalBase
+from lantern.functional import starcompose
 
-from {{cookiecutter.package_name}} import problem
+from {{cookiecutter.package_name}} import settings, problem
+
+
+def resized(image: Image.Image):
+    return image.resize(settings.input_size)
 
 
 def standardized(image: Image.Image):
@@ -12,6 +17,12 @@ def standardized(image: Image.Image):
         torch.as_tensor(np.array(image, dtype=np.float32)).permute(2, 0, 1) / 255 * 2
         - 1
     )
+
+
+prepared = starcompose(
+    resized,
+    standardized,
+)
 
 
 class Feature(FunctionalBase):
@@ -23,7 +34,7 @@ class Feature(FunctionalBase):
 
     @staticmethod
     def from_image(image: Image.Image):
-        return Feature(data=standardized(image))
+        return Feature(data=prepared(image))
 
 
 class FeatureBatch(FunctionalBase):

@@ -40,6 +40,7 @@ def train(config):
             collate_fn=lambda batch: list(zip(*batch)),
             num_workers=config["n_workers"],
             worker_init_fn=partial(worker_init, config["seed"]),
+            persistent_workers=True,
         )
     )
 

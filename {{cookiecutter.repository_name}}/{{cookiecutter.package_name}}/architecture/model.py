@@ -1,3 +1,4 @@
+from typing import List
 from functools import partial
 import torch
 import torch.nn as nn
@@ -28,5 +29,7 @@ class Model(nn.Module):
     def forward(self, prepared):
         return architecture.PredictionBatch(logits=self.logits(prepared))
 
-    def predictions(self, feature_batch: architecture.FeatureBatch):
-        return self.forward(feature_batch.stack().to(module_device(self)))
+    def predictions(self, features: List[architecture.StandardizedImage]):
+        return self.forward(
+            torch.stack([feature.data for feature in features]).to(module_device(self))
+        )

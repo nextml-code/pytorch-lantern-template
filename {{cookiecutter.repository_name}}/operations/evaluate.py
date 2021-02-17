@@ -20,10 +20,17 @@ def evaluate(config):
         model.load_state_dict(torch.load("model/model.pt"))
 
     evaluate_data_loaders = {
-        f"evaluate_{name}": datastream.data_loader(
-            batch_size=config["eval_batch_size"],
-            num_workers=config["n_workers"],
-            collate_fn=tuple,
+        f"evaluate_{name}": (
+            datastream.map(
+                lambda example: (
+                    example,
+                    architecture.StandardizedImage.from_example(example),
+                )
+            ).data_loader(
+                batch_size=config["eval_batch_size"],
+                collate_fn=lambda batch: list(zip(*batch)),
+                num_workers=config["n_workers"],
+            )
         )
         for name, datastream in datastream.evaluate_datastreams().items()
     }
@@ -40,10 +47,8 @@ def evaluate(config):
 
     with lantern.module_eval(model), torch.no_grad():
         for name, data_loader in evaluate_data_loaders.items():
-            for examples in tqdm(data_loader, desc=name, leave=False):
-                predictions = model.predictions(
-                    architecture.FeatureBatch.from_examples(examples)
-                )
+            for examples, features in tqdm(data_loader, desc=name, leave=False):
+                predictions = model.predictions(features)
                 loss = predictions.loss(examples)
                 evaluate_metrics[name].update_(examples, predictions.cpu(), loss.cpu())
             evaluate_metrics[name].log_().print()

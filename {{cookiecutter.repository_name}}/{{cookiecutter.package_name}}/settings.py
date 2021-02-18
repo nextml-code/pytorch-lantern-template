@@ -1,1 +1,1 @@
-input_size = (32, 32)
+input_size = (32, 32)  # (width, height)

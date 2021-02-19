@@ -24,7 +24,7 @@ class Prediction(FunctionalBase):
 
     def representation(self, example=None):
         if example:
-            image = example.image.copy().resize((256, 256))
+            image = Image.fromarray(example.image).resize((256, 256))
         else:
             image = Image.new("RGB", (256, 256))
 

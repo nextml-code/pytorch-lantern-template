@@ -9,7 +9,13 @@ import torch.utils.tensorboard
 import lantern
 from lantern import set_seeds, worker_init
 
-from {{cookiecutter.package_name}} import datastream, architecture, metrics, log_examples
+from {{cookiecutter.package_name}} import (
+    datastream,
+    architecture,
+    metrics,
+    log_examples,
+    tools,
+)
 
 
 def train(config):
@@ -28,16 +34,11 @@ def train(config):
 
     gradient_data_loader = (
         datastream.GradientDatastream()
-        .map(
-            lambda example: (
-                example,
-                architecture.StandardizedImage.from_example(example),
-            )
-        )
+        .map(architecture.StandardizedImage.from_example)
         .data_loader(
             batch_size=config["batch_size"],
             n_batches_per_epoch=config["n_batches_per_epoch"],
-            collate_fn=lambda batch: list(zip(*batch)),
+            collate_fn=tools.unzip,
             num_workers=config["n_workers"],
             worker_init_fn=partial(worker_init, config["seed"]),
             persistent_workers=(config["n_workers"] >= 1),
@@ -46,16 +47,11 @@ def train(config):
 
     evaluate_data_loaders = {
         f"evaluate_{name}": (
-            datastream.map(
-                lambda example: (
-                    example,
-                    architecture.StandardizedImage.from_example(example),
-                )
-            )
+            datastream.map(architecture.StandardizedImage.from_example)
             .take(128)
             .data_loader(
                 batch_size=config["eval_batch_size"],
-                collate_fn=lambda batch: list(zip(*batch)),
+                collate_fn=tools.unzip,
                 num_workers=config["n_workers"],
             )
         )

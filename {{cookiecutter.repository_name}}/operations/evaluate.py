@@ -7,7 +7,7 @@ import torch
 import torch.utils.tensorboard
 import lantern
 
-from {{cookiecutter.package_name}} import datastream, architecture, metrics
+from {{cookiecutter.package_name}} import datastream, architecture, metrics, tools
 
 
 def evaluate(config):
@@ -21,14 +21,9 @@ def evaluate(config):
 
     evaluate_data_loaders = {
         f"evaluate_{name}": (
-            datastream.map(
-                lambda example: (
-                    example,
-                    architecture.StandardizedImage.from_example(example),
-                )
-            ).data_loader(
+            datastream.map(architecture.StandardizedImage.from_example).data_loader(
                 batch_size=config["eval_batch_size"],
-                collate_fn=lambda batch: list(zip(*batch)),
+                collate_fn=tools.unzip,
                 num_workers=config["n_workers"],
             )
         )

@@ -11,7 +11,6 @@ class Example(FunctionalBase):
 
     class Config:
         arbitrary_types_allowed = True
-        allow_mutation = False
 
     @property
     def class_index(self):
@@ -21,11 +20,11 @@ class Example(FunctionalBase):
         image = Image.fromarray(self.image)
         draw = ImageDraw.Draw(image)
         tools.text_(draw, self.class_name, 10, 10)
-        return image
+        return np.array(image)
 
     @property
     def _repr_png_(self):
-        return self.representation()._repr_png_
+        return Image.fromarray(self.representation())._repr_png_
 
     def augment(self, augmenter):
         return self.replace(image=augmenter.augment(image=self.image))
@@ -36,7 +35,7 @@ def test_example():
 
     (
         Example(
-            image=np.ones((256, 150, 3), dtype=np.uint8),
+            image=np.zeros((256, 256, 3), np.uint8),
             class_name=problem.settings.CLASS_NAMES[0],
         ).augment(iaa.Affine(scale=(0.9, 1.1)))
     )

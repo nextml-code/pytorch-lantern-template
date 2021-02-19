@@ -43,7 +43,7 @@ Functions to supply the data in a natural (human-readable) form. No model/archit
 
 Adapts the data from ``problem`` for training and evaluation. Keeps data in a natural form.
 
--  Splits train data in gradient / early\_stopping
+-  Splits train data in train / early\_stopping
 -  Augments data
 -  Works with the natural format of the examples just like problem
 -  Create informative batches (oversample, stratify, etc)
@@ -62,7 +62,7 @@ Contains the model used to solve the problem as well as functions to convert the
 ``splits``
 ~~~~~~~~~~
 
-Contains train/compare and gradient/early stopping splits as ``.json`` files.
+Contains train/compare and train/early stopping splits as ``.json`` files.
 
 ``tools``
 ~~~~~~~~~

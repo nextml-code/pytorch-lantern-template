@@ -1,5 +1,6 @@
 from pathlib import Path
 from PIL import Image
+import numpy as np
 import pandas as pd
 import numpy as np
 from datastream import Dataset

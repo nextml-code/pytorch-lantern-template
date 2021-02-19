@@ -6,7 +6,7 @@ from {{cookiecutter.package_name}} import problem, tools
 
 
 class Example(FunctionalBase):
-    image: Image.Image
+    image: np.ndarray
     class_name: str
 
     class Config:
@@ -18,7 +18,7 @@ class Example(FunctionalBase):
         return problem.settings.CLASS_NAMES.index(self.class_name)
 
     def representation(self):
-        image = self.image.copy()
+        image = Image.fromarray(self.image)
         draw = ImageDraw.Draw(image)
         tools.text_(draw, self.class_name, 10, 10)
         return image
@@ -28,8 +28,7 @@ class Example(FunctionalBase):
         return self.representation()._repr_png_
 
     def augment(self, augmenter):
-        image = Image.fromarray(augmenter.augment(image=np.array(self.image)))
-        return Example(image=image, class_name=self.class_name)
+        return self.replace(image=augmenter.augment(image=self.image))
 
 
 def test_example():
@@ -37,7 +36,7 @@ def test_example():
 
     (
         Example(
-            image=Image.new("RGB", (256, 256)),
+            image=np.ones((256, 150, 3), dtype=np.uint8),
             class_name=problem.settings.CLASS_NAMES[0],
         ).augment(iaa.Affine(scale=(0.9, 1.1)))
     )

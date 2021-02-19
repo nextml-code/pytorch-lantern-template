@@ -1,6 +1,7 @@
 from pathlib import Path
 from PIL import Image
 import pandas as pd
+import numpy as np
 from datastream import Dataset
 
 from {{cookiecutter.package_name}} import problem
@@ -17,7 +18,7 @@ def CifarDataset(dataframe):
         )
         .starmap(
             lambda image_path, class_name: problem.Example(
-                image=Image.open("prepare" / image_path),
+                image=np.array(Image.open("prepare" / image_path)),
                 class_name=class_name,
             )
         )

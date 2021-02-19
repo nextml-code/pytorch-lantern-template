@@ -4,8 +4,8 @@ from {{cookiecutter.package_name}} import datastream
 from {{cookiecutter.package_name}}.problem import settings
 
 
-def GradientDatastream():
-    dataset = datastream.datasets()["gradient"]
+def TrainDatastream():
+    dataset = datastream.datasets()["train"]
     augmenter = datastream.augmenter()
     return Datastream.merge(
         [

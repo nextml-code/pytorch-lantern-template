@@ -8,11 +8,7 @@ from lantern.functional import starcompose
 from {{cookiecutter.package_name}} import settings, problem, architecture
 
 
-def resized(image: np.ndarray):
-    return architecture.resize(image=image)
-
-
-def standardized(image: np.ndarray):
+def standardize(image: np.ndarray) -> Tensor:
     return torch.as_tensor(image).permute(2, 0, 1).float() / 255 * 2 - 1
 
 
@@ -20,8 +16,8 @@ class StandardizedImage(FunctionalBase):
     data: Tensor
 
     @staticmethod
-    def from_image(image: np.ndarray):
-        return StandardizedImage(data=standardized(resized(image)))
+    def from_image(image: Image.Image):
+        return StandardizedImage(data=standardize(architecture.resize(image=image)))
 
     @staticmethod
     def from_example(example: problem.Example):

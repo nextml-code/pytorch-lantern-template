@@ -4,7 +4,7 @@ import imgaug
 
 resize = imgaug.augmenters.Resize(
     dict(
-        height=settings.input_size[1],
-        width=settings.input_size[0],
+        height=settings.INPUT_HEIGHT,
+        width=settings.INPUT_WIDTH,
     )
 )

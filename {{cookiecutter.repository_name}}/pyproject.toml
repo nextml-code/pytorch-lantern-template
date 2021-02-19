@@ -30,7 +30,7 @@ numpy = "^1.19.2"
 torchvision = "^0.8.2"
 opencv-python = "^4.4.0"
 pytorch-datastream = "^0.4.0"
-pytorch-lantern = "^0.9.3"
+pytorch-lantern = "^0.10.0"
 
 [tool.poetry.dev-dependencies]
 guildai = "0.7.1"

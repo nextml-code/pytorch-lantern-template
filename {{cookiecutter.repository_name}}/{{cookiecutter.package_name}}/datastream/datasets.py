@@ -22,5 +22,11 @@ def datasets():
     )
 
 
-def mini_subset(dataset):
-    return dataset.subset(lambda df: df["index"].isin(df.sample(256)["index"]))
+def mini_subset(dataset, n=256):
+    small_proportion = min(n, len(dataset)) / len(dataset)
+    return dataset.split(
+        key_column="index",
+        proportions=dict(big=1 - small_proportion, small=small_proportion),
+        stratify_column="class_name",
+        seed=1,
+    )["small"]

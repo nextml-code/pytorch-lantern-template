@@ -49,6 +49,13 @@
         - model
         - prepare
         - splits
+    commit:
+      main: operations.commit
+      flags-import: all
+      output-scalars: off
+      requires:
+        - notebooks
+        - ran-notebooks
   resources:
     model:
       name: model
@@ -66,3 +73,6 @@
     notebooks:
       sources:
         - notebooks
+    ran-notebooks:
+      sources:
+        - operation: jupyter

@@ -45,6 +45,7 @@
       flags-import: all
       output-scalars: off
       requires:
+        - sourcecode-symlink
         - notebooks
         - model
         - prepare
@@ -76,3 +77,7 @@
     ran-notebooks:
       sources:
         - operation: jupyter
+    sourcecode-symlink: # overwrites the copied source with a symbolic link
+      sources:
+        - {{cookiecutter.package_name}}
+

@@ -2,21 +2,20 @@ import shutil
 import argparse
 import subprocess
 import webbrowser
-from enum import Enum
 from pathlib import Path
 from notebook.services.contents.filemanager import FileContentsManager as FCM
 
 
 def jupyter(notebook, port, show):
-    original_path = Path("notebooks") / args.notebook
+    original_path = Path("notebooks") / notebook
 
-    copy_path = Path(args.notebook)
+    copy_path = Path(notebook)
     if original_path.exists():
         shutil.copy(original_path, copy_path)
     else:
-        FCM().new(path=copy_path)
+        FCM().new(path=copy_path.as_posix())
 
-    if args.show == ShowOption.interactive:
+    if show == show_options["interactive"]:
         subprocess.run(["jupyter", "notebook", copy_path.as_posix()])
     else:
         subprocess.run(
@@ -32,21 +31,13 @@ def jupyter(notebook, port, show):
         )
 
     subprocess.run(["jupyter", "nbconvert", "--to", "html", copy_path.as_posix()])
-    html_path = copy_path.parent / args.notebook.replace(".ipynb", ".html")
-    if args.show == ShowOption.done:
+    html_path = copy_path.parent / notebook.replace(".ipynb", ".html")
+    if show == show_options["done"]:
         webbrowser.open(html_path)
 
 
-class ShowOption(Enum):
-    interactive = "interactive"
-    done = "done"
-    nothing = "nothing"
-
-    def __str__(self):
-        return self.value
-
-    def __eq__(self, other):
-        return str(self) == str(other)
+# enums are hopeless
+show_options = {option: option for option in ["interactive", "done", "nothing"]}
 
 
 if __name__ == "__main__":
@@ -55,9 +46,8 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8888)
     parser.add_argument(
         "--show",
-        # cannot use type=ShowOption because choices list consists of strings
-        default=str(ShowOption.interactive),
-        choices=[str(option) for option in ShowOption],
+        default=show_options["interactive"],
+        choices=list(show_options),
         help="What to show: an interactive notebook, an HTML export when done, or nothing.",
     )
     args = parser.parse_args()

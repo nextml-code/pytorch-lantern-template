@@ -75,6 +75,7 @@
       sources:
         - notebooks
     ran-notebooks:
+      path: ran-notebooks
       sources:
         - operation: jupyter
     sourcecode-symlink: # overwrites the copied source with a symbolic link

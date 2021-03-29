@@ -73,3 +73,13 @@ Utility functions that don't fit elsewhere.
 ~~~~~~~~~~~~~~
 
 Operations available from the `guild.ai <https://guild.ai/>`__ CLI.
+
+Testing
+-------
+
+- Before running any tests, make sure you have ``poetry`` and ``cookiecutter`` globally installed
+- Run all scripts tests from the root directory of this repo
+- Execute the scripts rather than sourcing them
+- Run ``test/create.sh`` first to initialize a fake repo from the template - it'll end up under ``.test-template``
+- Then run all the other scripts in any order you like (except for ``test/env.sh`` - that one's just a helper)
+

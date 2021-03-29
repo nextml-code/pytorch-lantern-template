@@ -14,6 +14,10 @@ def jupyter(notebook_name, port, clean, interactive):
     if not notebook_path.exists():
         FileContentsManager().new(path=notebook_path.as_posix())
 
+    if not clean:
+        package_name = "{{cookiecutter.package_name}}"
+        Path(f"sourcecode-symlink/{package_name}").rename(package_name)
+
     if interactive:
         subprocess.run(["jupyter", "notebook", notebook_path.as_posix()])
     else:

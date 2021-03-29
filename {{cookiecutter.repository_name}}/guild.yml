@@ -78,7 +78,8 @@
       path: ran-notebooks
       sources:
         - operation: jupyter
-    sourcecode-symlink: # overwrites the copied source with a symbolic link
+    sourcecode-symlink:
+      target-path: sourcecode-symlink
       sources:
         - {{cookiecutter.package_name}}
 

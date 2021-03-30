@@ -130,6 +130,7 @@ if __name__ == "__main__":
     config.update(
         seed=31415,
         run_id=os.getenv("RUN_ID"),
+        **lantern.git_info(),
     )
 
     Path("config.json").write_text(json.dumps(config))

@@ -47,16 +47,15 @@
       requires:
         - sourcecode-symlink
         - notebooks
+        - splits
         - model
         - prepare
-        - splits
-    commit:
-      main: operations.commit
+    clean-notebook:
+      main: operations.clean_notebook
       flags-import: all
       output-scalars: off
       requires:
         - notebooks
-        - ran-notebooks
   resources:
     model:
       name: model
@@ -74,12 +73,7 @@
     notebooks:
       sources:
         - notebooks
-    ran-notebooks:
-      path: ran-notebooks
-      sources:
-        - operation: jupyter
     sourcecode-symlink:
-      target-path: sourcecode-symlink
       sources:
         - {{cookiecutter.package_name}}
 

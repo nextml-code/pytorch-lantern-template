@@ -26,6 +26,7 @@ def train(config):
     optimizer = torch.optim.Adam(model.parameters(), lr=config["learning_rate"])
 
     if Path("model").exists():
+        tools.verify_splits()
         print("Loading model checkpoint")
         model.load_state_dict(torch.load("model/model.pt"))
         optimizer.load_state_dict(torch.load("model/optimizer.pt"))

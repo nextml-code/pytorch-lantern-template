@@ -61,6 +61,7 @@
       sources:
         - operation: prepare
     splits:
+      path: {{cookiecutter.package_name}}
       sources:
         - {{cookiecutter.package_name}}/splits
     notebooks:

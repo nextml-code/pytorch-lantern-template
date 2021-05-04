@@ -17,6 +17,7 @@ def evaluate(config):
     model = architecture.Model().to(device)
 
     if Path("model").exists():
+        tools.verify_splits()
         print("Loading model checkpoint")
         model.load_state_dict(torch.load("model/model.pt"))
 

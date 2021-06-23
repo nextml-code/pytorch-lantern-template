@@ -11,6 +11,7 @@ if __name__ == "__main__":
 
     working_dir = f"{os.environ['GUILD_HOME']}/runs/{os.environ['RUN_ID']}"
     command = f"jupyter notebook --port={args.port}"
+    os.environ["PYTHONPATH"] += os.environ["PROJECT_DIR"] + ":"
 
     if "PYTHONSTARTUP" in os.environ and Path(os.environ["PYTHONSTARTUP"]).exists():
         python_startup_script = (

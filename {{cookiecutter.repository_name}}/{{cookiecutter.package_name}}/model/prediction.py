@@ -8,7 +8,7 @@ from {{cookiecutter.package_name}} import problem, tools
 
 
 class Prediction(FunctionalBase):
-    logits: Tensor.short("C")
+    logits: Tensor.dims("C")
 
     class Config:
         arbitrary_types_allowed = True
@@ -46,7 +46,7 @@ class Prediction(FunctionalBase):
 
 
 class PredictionBatch(FunctionalBase):
-    logits: Tensor.short("NC")
+    logits: Tensor.dims("NC")
 
     class Config:
         arbitrary_types_allowed = True

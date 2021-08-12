@@ -9,8 +9,8 @@ def log_examples(logger, name, epoch, predictions, examples):
                 np.array(
                     predictions[index].representation(examples[index]),
                     dtype=np.float32,
-                )
-                / 255
+                ) /
+                255
                 for index in range(min(5, len(predictions)))
             ]
         ),

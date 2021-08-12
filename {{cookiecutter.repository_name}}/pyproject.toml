@@ -44,29 +44,15 @@ notebook = "5.7.8"
 jupyter_contrib_nbextensions = "0.5.1"
 ipykernel = "^5.4.3"
 ipywidgets = "^7.6.3"
+autopep8 = "^1.5.7"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-line-length = 88
-target-version = ['py38']
-include = '\.pyi?$'
-exclude = '''
+[tool.autopep8]
+max_line_length = 88
+ignore = "E501"
+in-place = true
+recursive = true
 
-(
-  /(
-      \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-  )/
-)
-'''

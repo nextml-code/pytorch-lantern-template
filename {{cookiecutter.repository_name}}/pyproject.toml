@@ -52,7 +52,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.autopep8]
 max_line_length = 88
-ignore = "E501"
+ignore = "E124, E501"
 in-place = true
 recursive = true
 

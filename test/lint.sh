@@ -8,4 +8,4 @@ set -o nounset
 cd "$PROJECT_PATH"
 
 echo $PWD
-poetry run black . --check
+poetry run autopep8 . --diff --exit-code --recursive

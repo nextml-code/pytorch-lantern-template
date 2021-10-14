@@ -44,6 +44,10 @@ notebook = "5.7.8"
 jupyter_contrib_nbextensions = "0.5.1"
 ipykernel = "^5.4.3"
 ipywidgets = "^7.6.3"
+poethepoet = "^0.10.0"
+
+[tool.poe.tasks]
+cuda11 = "python -m pip install torch==1.7.1+cu110 torchvision==0.8.2+cu110 -f https://download.pytorch.org/whl/torch_stable.html"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -2,7 +2,7 @@
 name = "pytorch-lantern-template"
 version = "0.0.0"
 description = "Project template using pytorch-lantern, intended to be instantiated using cookiecutter."
-authors = ["Aiwizo AB"]
+authors = ["NextML AB"]
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]

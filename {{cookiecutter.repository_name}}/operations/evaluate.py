@@ -9,7 +9,7 @@ import lantern
 
 import data
 from . import utilities
-from {{cookiecutter.package_name}} import Model
+from {{cookiecutter.package_name}}.model import Model
 
 
 def evaluate(config):
@@ -21,18 +21,17 @@ def evaluate(config):
     print("Loading model checkpoint")
     model.load_state_dict(torch.load("model/model.pt"))
 
-    evaluate_datastreams = data.evaluate_datastreams()
+    datastreams = data.datastreams()
     evaluate_data_loaders = {
-        f"evaluate_{name}": (
-            evaluate_datastreams[name]
-            .map(model.StandardizedImage.from_example)
+        name: (
+            datastreams[name]
             .data_loader(
                 batch_size=config["eval_batch_size"],
-                collate_fn=utilities.unzip,
+                collate_fn=list,
                 num_workers=config["n_workers"],
             )
         )
-        for name in ["train", "early_stopping", "compare"]
+        for name in ["evaluate_train", "evaluate_early_stopping", "evaluate_compare"]
     }
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
@@ -41,11 +40,11 @@ def evaluate(config):
     }
 
     for dataset_name, data_loader in evaluate_data_loaders.items():
-        for standardized_images, examples in lantern.ProgressBar(
+        for examples in lantern.ProgressBar(
             data_loader, dataset_name
         ):
             with lantern.module_eval(model):
-                predictions = model.predictions(standardized_images)
+                predictions = model.predictions([example.image for example in examples])
 
             evaluate_metrics[dataset_name]["pairs"].update_(predictions, examples)
 

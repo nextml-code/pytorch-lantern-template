@@ -5,7 +5,7 @@ import torch
 from lantern import FunctionalBase, Tensor, Numpy
 from typing import List
 
-from {{cookiecutter.package_name}} import settings, problem, model
+from {{cookiecutter.package_name}} import settings
 
 
 resize = imgaug.augmenters.Resize(
@@ -28,7 +28,7 @@ class StandardizedImage(FunctionalBase):
         return StandardizedImage(data=standardize(resize(image=image)))
 
     @staticmethod
-    def from_example(example: problem.Example):
+    def from_example(example):
         resized_example = example.augment(resize)
         return (
             StandardizedImage.from_image(resized_example.image),

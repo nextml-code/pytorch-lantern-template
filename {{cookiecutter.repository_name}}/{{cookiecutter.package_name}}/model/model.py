@@ -1,7 +1,9 @@
 from typing import List
+import numpy as np
 import torch
 import torch.nn as nn
-from lantern import module_device
+from pydantic import validate_arguments
+from lantern import module_device, Tensor, Numpy
 
 from .standardized_image import StandardizedImage
 from .prediction import PredictionBatch
@@ -25,12 +27,20 @@ class Model(nn.Module):
             nn.Softmax(dim=1),
         )
 
-    def forward(self, prepared):
+    @property
+    def device(self):
+        return module_device(self)
+
+    @validate_arguments
+    def forward(self, prepared: Tensor.dims("NCHW")):
         return PredictionBatch(logits=self.logits(prepared))
 
-    def predictions(self, features: List[StandardizedImage]):
+    @validate_arguments
+    def predictions(self, images: List[Numpy.dims("HWC").dtype(np.uint8)]):
         return self.forward(
-            torch.stack([feature.data for feature in features]).to(module_device(self))
+            torch.stack(
+                [StandardizedImage.from_image(image).data for image in images]
+            ).to(self.device)
         )
 
 

@@ -85,3 +85,9 @@ or create and prepare:
 ```bash
 ./test/create.sh && ./test/prepare.sh
 ```
+
+### Common issues
+
+You cannot activate two environments at the same time. You should not have
+the outer template environment activated (i.e. poetry shell) when running
+the development scripts above.

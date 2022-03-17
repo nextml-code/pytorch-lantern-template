@@ -33,7 +33,10 @@ class Example(FunctionalBase):
 
 
 def text_(draw, text, x, y, fill="black", outline="white", size=12):
-    font = ImageFont.load_default()
+    try:
+        font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf", size)
+    except OSError:
+        font = ImageFont.load_default()
 
     for x_shift, y_shift in product([-1, 0, 1], [-1, 0, 1]):
         draw.text((x + x_shift, y + y_shift), text, font=font, fill=outline)

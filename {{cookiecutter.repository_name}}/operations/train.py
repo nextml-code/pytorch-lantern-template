@@ -8,7 +8,7 @@ import torch.utils.tensorboard
 import lantern
 
 import data
-from {{cookiecutter.package_name}} import Model
+from {{cookiecutter.package_name}}.model import Model
 from . import utilities
 
 
@@ -26,31 +26,29 @@ def train(config):
         optimizer.load_state_dict(torch.load("model/optimizer.pt"))
         lantern.set_learning_rate(optimizer, config["learning_rate"])
 
+    datastreams = data.datastreams()
+
     train_data_loader = (
-        data.TrainDatastream()
-        .map(model.StandardizedImage.from_example)
-        .data_loader(
+        datastreams["train"].data_loader(
             batch_size=config["batch_size"],
             n_batches_per_epoch=config["n_batches_per_epoch"],
-            collate_fn=utilities.unzip,
+            collate_fn=list,
             num_workers=config["n_workers"],
             worker_init_fn=lantern.worker_init_fn(config["seed"]),
             persistent_workers=(config["n_workers"] >= 1),
         )
     )
 
-    evaluate_datastreams = data.evaluate_datastreams()
     evaluate_data_loaders = {
-        f"evaluate_{name}": (
-            evaluate_datastreams[name]
-            .map(model.StandardizedImage.from_example)
+        name: (
+            datastreams[name]
             .data_loader(
                 batch_size=config["eval_batch_size"],
-                collate_fn=utilities.unzip,
+                collate_fn=list,
                 num_workers=config["n_workers"],
             )
         )
-        for name in ["train", "early_stopping"]
+        for name in ["evaluate_train", "evaluate_early_stopping"]
     }
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter(log_dir="tb")
@@ -59,11 +57,11 @@ def train(config):
 
     for epoch in lantern.Epochs(config["max_epochs"]):
 
-        for standardized_images, examples in lantern.ProgressBar(
+        for examples in lantern.ProgressBar(
             train_data_loader, "train", train_metrics
         ):
             with lantern.module_train(model), torch.enable_grad():
-                predictions = model.predictions(standardized_images)
+                predictions = model.predictions([example.image for example in examples])
                 loss = predictions.loss(examples)
                 loss.backward()
             optimizer.step()
@@ -83,11 +81,11 @@ def train(config):
         }
 
         for dataset_name, data_loader in evaluate_data_loaders.items():
-            for standardized_images, examples in lantern.ProgressBar(
+            for examples in lantern.ProgressBar(
                 data_loader, dataset_name
             ):
                 with lantern.module_eval(model):
-                    predictions = model.predictions(standardized_images)
+                    predictions = model.predictions([example.image for example in examples])
 
                 evaluate_metrics[dataset_name]["pairs"].update_(predictions, examples)
 

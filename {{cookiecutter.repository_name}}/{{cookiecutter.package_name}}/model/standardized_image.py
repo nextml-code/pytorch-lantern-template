@@ -1,19 +1,8 @@
 from PIL import Image
-import numpy as np
-import imgaug
 import torch
 from lantern import FunctionalBase, Tensor, Numpy
-from typing import List
 
-from {{cookiecutter.package_name}} import settings
-
-
-resize = imgaug.augmenters.Resize(
-    dict(
-        height=settings.INPUT_HEIGHT,
-        width=settings.INPUT_WIDTH,
-    )
-)
+from .resize import resize
 
 
 def standardize(image: Numpy) -> Tensor:
@@ -26,11 +15,3 @@ class StandardizedImage(FunctionalBase):
     @staticmethod
     def from_image(image: Image.Image):
         return StandardizedImage(data=standardize(resize(image=image)))
-
-    @staticmethod
-    def from_example(example):
-        resized_example = example.augment(resize)
-        return (
-            StandardizedImage.from_image(resized_example.image),
-            resized_example,
-        )

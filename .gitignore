@@ -8,7 +8,7 @@ dist
 build/
 _build/
 *.pyc
-.test-template/
+test/cifar10/
 
 AUTHORS
 ChangeLog

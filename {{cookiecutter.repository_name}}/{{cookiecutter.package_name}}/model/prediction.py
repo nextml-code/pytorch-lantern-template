@@ -1,10 +1,11 @@
-from PIL import Image, ImageDraw
+from itertools import product
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import torch
 import torch.nn.functional as F
 from lantern import FunctionalBase, Tensor
 
-from {{cookiecutter.package_name}} import problem, tools
+from {{cookiecutter.package_name}} import settings
 
 
 class Prediction(FunctionalBase):
@@ -20,7 +21,7 @@ class Prediction(FunctionalBase):
 
     @property
     def class_name(self):
-        return problem.settings.CLASS_NAMES[self.logits.argmax()]
+        return settings.CLASS_NAMES[self.logits.argmax()]
 
     def representation(self, example=None):
         if example:
@@ -30,14 +31,14 @@ class Prediction(FunctionalBase):
 
         probabilities = dict(
             zip(
-                problem.settings.CLASS_NAMES,
+                settings.CLASS_NAMES,
                 self.probabilities,
             )
         )
 
         draw = ImageDraw.Draw(image)
         for index, (class_name, probability) in enumerate(probabilities.items()):
-            tools.text_(draw, f"{class_name}: {probability:.2f}", 10, 5 + 10 * index)
+            text_(draw, f"{class_name}: {probability:.2f}", 10, 5 + 10 * index)
         return image
 
     @property
@@ -85,3 +86,12 @@ class PredictionBatch(FunctionalBase):
 
     def accuracy(self, examples):
         return self.logits.argmax(dim=1) == self.stack_class_indices(examples)
+
+
+def text_(draw, text, x, y, fill="black", outline="white", size=12):
+    font = ImageFont.load_default()
+
+    for x_shift, y_shift in product([-1, 0, 1], [-1, 0, 1]):
+        draw.text((x + x_shift, y + y_shift), text, font=font, fill=outline)
+
+    draw.text((x, y), text, font=font, fill=fill)

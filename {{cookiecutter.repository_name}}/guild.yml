@@ -1,12 +1,12 @@
 - package: {{cookiecutter.repository_name}}-package
   data-files:
-    - {{cookiecutter.package_name}}/splits/*.json
+    - data/splits/*.json
 
 - model: simple-r1
   sourcecode:
     - '*.py'
     - guild.yml
-    - {{cookiecutter.package_name}}/splits/*.json
+    - data/splits/*.json
     - exclude:
         dir:
           - input
@@ -62,7 +62,7 @@
         - operation: prepare
     splits:
       sources:
-        - {{cookiecutter.package_name}}/splits
+        - data/splits
     notebooks:
       sources:
         - notebooks

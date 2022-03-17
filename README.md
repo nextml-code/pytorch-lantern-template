@@ -49,6 +49,12 @@ These often include:
 
 ## Development
 
+Install dev dependencies like cookiecutter.
+
+```bash
+poetry install
+```
+
 Setup test environment
 
 ```bash
@@ -66,11 +72,16 @@ Run tests in any order
 ```bash
 ./test/run.sh
 ./test/test.sh
-./test/lint.sh
 ```
 
 It can be useful to chain create and run when developing
 
 ```bash
 ./test/create.sh && ./test/run.sh
+```
+
+or create and prepare:
+
+```bash
+./test/create.sh && ./test/prepare.sh
 ```

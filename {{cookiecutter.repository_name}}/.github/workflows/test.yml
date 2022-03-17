@@ -34,11 +34,6 @@ jobs:
         source $HOME/.poetry/env
         poetry install
 
-    - name: Lint
-      run: |
-        source $HOME/.poetry/env
-        poetry run black . --check
-
     - name: Test with pytest
       run: |
         source $HOME/.poetry/env

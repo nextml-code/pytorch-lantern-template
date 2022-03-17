@@ -7,7 +7,9 @@ import torch
 import torch.utils.tensorboard
 import lantern
 
-from {{cookiecutter.package_name}} import datastream, Model, metrics, tools
+import data
+from . import utilities
+from {{cookiecutter.package_name}} import Model
 
 
 def evaluate(config):
@@ -19,14 +21,14 @@ def evaluate(config):
     print("Loading model checkpoint")
     model.load_state_dict(torch.load("model/model.pt"))
 
-    evaluate_datastreams = datastream.evaluate_datastreams()
+    evaluate_datastreams = data.evaluate_datastreams()
     evaluate_data_loaders = {
         f"evaluate_{name}": (
             evaluate_datastreams[name]
             .map(model.StandardizedImage.from_example)
             .data_loader(
                 batch_size=config["eval_batch_size"],
-                collate_fn=tools.unzip,
+                collate_fn=utilities.unzip,
                 num_workers=config["n_workers"],
             )
         )
@@ -35,7 +37,7 @@ def evaluate(config):
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     evaluate_metrics = {
-        name: metrics.evaluate_metrics() for name in evaluate_data_loaders
+        name: utilities.metrics.evaluate_metrics() for name in evaluate_data_loaders
     }
 
     for dataset_name, data_loader in evaluate_data_loaders.items():

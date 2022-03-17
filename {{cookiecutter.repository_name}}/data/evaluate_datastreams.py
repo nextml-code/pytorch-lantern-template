@@ -1,10 +1,10 @@
 from datastream import Datastream, samplers
 
-from {{cookiecutter.package_name}} import datastream
+from .datasets import datasets
 
 
 def evaluate_datastreams():
     return {
         split_name: Datastream(dataset, samplers.SequentialSampler(len(dataset)))
-        for split_name, dataset in datastream.datasets().items()
+        for split_name, dataset in datasets().items()
     }

@@ -12,4 +12,4 @@ poetry run cookiecutter ../. \
     repository_name="$REPOSITORY_NAME"
 
 cd "$REPOSITORY_NAME"
-poetry install
+poetry install --no-root

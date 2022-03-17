@@ -1,27 +1,24 @@
+"""
+Saving images and labels to disk to simulate a more realistic use case
+"""
 import argparse
 from pathlib import Path
 import pandas as pd
 import torchvision
 
-from {{cookiecutter.package_name}} import problem
+from {{cookiecutter.package_name}} import settings
 
-# more realistic to have class names without a natural 1-to-1 mapping with
-# integers
-CLASS_TO_NAME = dict(zip(range(10), problem.settings.CLASS_NAMES))
-CACHE_ROOT = "cache"
-
-
-def image_path(directory, index):
-    return directory / f"{index}.png"
+# more realistic to have natural class names
+CLASS_TO_NAME = dict(zip(range(10), settings.CLASS_NAMES))
+CACHE_ROOT = "/tmp/cifar10-template-cache"
 
 
-def save_images(dataset, directory):
-    for index, (image, _) in enumerate(dataset):
-        image.save(image_path(directory, index))
+def image_path(index):
+    return Path(f"images/{index}.png")
 
 
-def save_labels(dataset, image_directory, csv_path):
-    (
+def dataframe(dataset):
+    return (
         pd.DataFrame(
             dict(
                 index=range(len(dataset)),
@@ -31,11 +28,10 @@ def save_labels(dataset, image_directory, csv_path):
         .assign(
             class_name=lambda df: (df["number"].map(CLASS_TO_NAME)),
             image_path=lambda df: df["index"].apply(
-                lambda index: image_path(image_directory, index)
+                lambda index: image_path(index)
             ),
         )[["index", "image_path", "class_name"]]
         .sample(n=128)
-        .to_csv(csv_path)
     )
 
 
@@ -43,22 +39,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
 
-    dataset_and_directory = [
-        (
-            problem.settings.TRAIN_CSV,
-            Path("train"),
-            torchvision.datasets.CIFAR10(CACHE_ROOT, train=True, download=True),
-        ),
-        (
-            problem.settings.TEST_CSV,
-            Path("test"),
-            torchvision.datasets.CIFAR10(CACHE_ROOT, train=False, download=True),
-        ),
-    ]
-
-    # saving images and labels to disk to simulate a more realistic use case
-    # can preprocess (e.g. resize) images before training this way
-    for csv_path, directory, dataset in dataset_and_directory:
-        directory.mkdir()
-        save_images(dataset, directory)
-        save_labels(dataset, directory, csv_path)
+    dataset = torchvision.datasets.CIFAR10(CACHE_ROOT, train=True, download=True)
+    Path("images").mkdir()
+    for index, (image, _) in enumerate(dataset):
+        image.save(image_path(index))
+    dataframe(dataset).to_csv("data.csv")

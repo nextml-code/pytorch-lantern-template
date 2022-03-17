@@ -7,13 +7,9 @@ import torch
 import torch.utils.tensorboard
 import lantern
 
-from {{cookiecutter.package_name}} import (
-    datastream,
-    Model,
-    metrics,
-    log_examples,
-    tools,
-)
+import data
+from {{cookiecutter.package_name}} import Model
+from . import utilities
 
 
 def train(config):
@@ -31,35 +27,35 @@ def train(config):
         lantern.set_learning_rate(optimizer, config["learning_rate"])
 
     train_data_loader = (
-        datastream.TrainDatastream()
+        data.TrainDatastream()
         .map(model.StandardizedImage.from_example)
         .data_loader(
             batch_size=config["batch_size"],
             n_batches_per_epoch=config["n_batches_per_epoch"],
-            collate_fn=tools.unzip,
+            collate_fn=utilities.unzip,
             num_workers=config["n_workers"],
             worker_init_fn=lantern.worker_init_fn(config["seed"]),
             persistent_workers=(config["n_workers"] >= 1),
         )
     )
 
-    evaluate_datastreams = datastream.evaluate_datastreams()
+    evaluate_datastreams = data.evaluate_datastreams()
     evaluate_data_loaders = {
         f"evaluate_{name}": (
             evaluate_datastreams[name]
             .map(model.StandardizedImage.from_example)
             .data_loader(
                 batch_size=config["eval_batch_size"],
-                collate_fn=tools.unzip,
+                collate_fn=utilities.unzip,
                 num_workers=config["n_workers"],
             )
         )
-        for name in ["mini_train", "early_stopping"]
+        for name in ["train", "early_stopping"]
     }
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter(log_dir="tb")
     early_stopping = lantern.EarlyStopping(tensorboard_logger=tensorboard_logger)
-    train_metrics = metrics.train_metrics()
+    train_metrics = utilities.metrics.train_metrics()
 
     for epoch in lantern.Epochs(config["max_epochs"]):
 
@@ -80,10 +76,10 @@ def train(config):
                 metric.log_dict(tensorboard_logger, "train", epoch)
 
         print(lantern.MetricTable("train", train_metrics))
-        log_examples(tensorboard_logger, "train", epoch, predictions, examples)
+        utilities.log_examples(tensorboard_logger, "train", epoch, predictions, examples)
 
         evaluate_metrics = {
-            name: metrics.evaluate_metrics() for name in evaluate_data_loaders
+            name: utilities.metrics.evaluate_metrics() for name in evaluate_data_loaders
         }
 
         for dataset_name, data_loader in evaluate_data_loaders.items():
@@ -99,7 +95,7 @@ def train(config):
                 metric.log_dict(tensorboard_logger, dataset_name, epoch)
 
             print(lantern.MetricTable(dataset_name, evaluate_metrics[dataset_name]))
-            log_examples(tensorboard_logger, dataset_name, epoch, predictions, examples)
+            utilities.log_examples(tensorboard_logger, dataset_name, epoch, predictions, examples)
 
         early_stopping = early_stopping.score(
             evaluate_metrics["evaluate_early_stopping"]["pairs"].compute()["accuracy"]

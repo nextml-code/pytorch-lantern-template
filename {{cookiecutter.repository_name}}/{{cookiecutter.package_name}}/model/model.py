@@ -3,7 +3,8 @@ import torch
 import torch.nn as nn
 from lantern import module_device
 
-from {{cookiecutter.package_name}} import model
+from .standardized_image import StandardizedImage
+from .prediction import PredictionBatch
 
 
 class Model(nn.Module):
@@ -25,13 +26,13 @@ class Model(nn.Module):
         )
 
     def forward(self, prepared):
-        return model.PredictionBatch(logits=self.logits(prepared))
+        return PredictionBatch(logits=self.logits(prepared))
 
-    def predictions(self, features: List[model.StandardizedImage]):
+    def predictions(self, features: List[StandardizedImage]):
         return self.forward(
             torch.stack([feature.data for feature in features]).to(module_device(self))
         )
 
 
-Model.StandardizedImage = model.StandardizedImage
-Model.PredictionBatch = model.PredictionBatch
+Model.StandardizedImage = StandardizedImage
+Model.PredictionBatch = PredictionBatch

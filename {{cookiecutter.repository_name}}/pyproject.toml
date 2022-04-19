@@ -3,7 +3,7 @@ name = "{{cookiecutter.package_name}}"
 version = "0.0.0"
 description = "Placeholder description"
 authors = ["{{cookiecutter.author}}"]
-readme = "README.rst"
+readme = "README.md"
 repository = "{{cookiecutter.repository}}"
 # some classifiers are added automatically, see https://python-poetry.org/docs/pyproject/#classifiers
 classifiers = [

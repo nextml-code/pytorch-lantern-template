@@ -75,14 +75,16 @@ class PredictionBatch(FunctionalBase):
             device=self.logits.device,
         )
 
-    def loss(self, examples):
-        return self.cross_entropy(examples)
+    def loss(self, examples, reduction="mean"):
+        return self.cross_entropy(examples, reduction)
 
-    def cross_entropy(self, examples):
+    def cross_entropy(self, examples, reduction):
         return F.cross_entropy(
-            self.logits,
-            self.stack_class_indices(examples),
+            self.logits, self.stack_class_indices(examples), reduction=reduction
         )
+
+    def accuracy(self, examples):
+        return self.logits.argmax(dim=1) == self.stack_class_indices(examples)
 
     def accuracy(self, examples):
         return self.logits.argmax(dim=1) == self.stack_class_indices(examples)

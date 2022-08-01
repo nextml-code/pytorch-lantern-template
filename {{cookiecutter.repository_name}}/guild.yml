@@ -40,6 +40,15 @@
         - model
         - prepare
         - splits
+    contested:
+      main: operations.contested
+      flags-import: all
+      output-scalars: off
+      requires:
+        - model
+        - prepare
+        - splits
+        - contested_display
     jupyter:
       main: operations.jupyter
       flags-import: all
@@ -63,6 +72,9 @@
     splits:
       sources:
         - data/splits
+    contested_display:
+      sources:
+        - operations/utilities/contested_display.py
     notebooks:
       sources:
         - notebooks

@@ -1,18 +1,17 @@
 from typing import List
-import numpy as np
 import torch
 import torch.nn as nn
-from pydantic import validate_arguments
 from lantern import module_device, Tensor, Numpy
 
-from .standardized_image import StandardizedImage
-from .prediction import PredictionBatch
+from .standardize import standardize
+from .resize import resize
+from .prediction_batch import PredictionBatch
 
 
 class Model(nn.Module):
     def __init__(self):
         super().__init__()
-        self.logits = nn.Sequential(
+        self.network = nn.Sequential(
             nn.Conv2d(3, 32, 3, 1),
             nn.ReLU(),
             nn.Conv2d(32, 64, 3, 1),
@@ -31,18 +30,23 @@ class Model(nn.Module):
     def device(self):
         return module_device(self)
 
-    @validate_arguments
-    def forward(self, prepared: Tensor.dims("NCHW")):
-        return PredictionBatch(logits=self.logits(prepared))
+    def forward(self, prepared: Tensor.dims("NCHW").float()) -> PredictionBatch:
+        return PredictionBatch(logits=self.network(prepared))
 
-    @validate_arguments
-    def predictions(self, images: List[Numpy.dims("HWC").dtype(np.uint8)]):
+    def predictions_(self, images: List[Numpy.dims("HWC").uint8()]) -> PredictionBatch:
+        """
+        This method has side effects as it modifies for example batch norm layers
+        if training is enabled.
+        """
         return self.forward(
-            torch.stack(
-                [StandardizedImage.from_image(image).data for image in images]
-            ).to(self.device)
+            torch.stack([standardize(resize(image)) for image in images]).to(
+                module_device(self)
+            )
         )
 
-
-Model.StandardizedImage = StandardizedImage
-Model.PredictionBatch = PredictionBatch
+    def predictions(self, images: List[Numpy.dims("HWC").uint8()]) -> PredictionBatch:
+        if self.training:
+            raise RuntimeError(
+                "Model is in training mode when calling `predictions`. Use `predictions_` instead."
+            )
+        return self.predictions_(images)

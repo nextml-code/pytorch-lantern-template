@@ -20,20 +20,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install cookiecutter
-          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+          curl -sSL https://install.python-poetry.org | python3 - --version 1.2.2
 
       - name: Setup template
         run: |
-          source $HOME/.poetry/env
+          export PATH="${PATH}:/root/.local/bin/"
           ./test/create.sh
 
       - name: Test template
         run: |
-          source $HOME/.poetry/env
+          export PATH="${PATH}:/root/.local/bin/"
           ./test/test.sh
 
       - name: Run template
         run: |
-          source $HOME/.poetry/env
+          export PATH="${PATH}:/root/.local/bin/"
           ./test/prepare.sh
           ./test/run.sh

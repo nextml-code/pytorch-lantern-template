@@ -8,7 +8,7 @@ from {{cookiecutter.package_name}} import settings
 
 
 class Example(FunctionalBase):
-    image: Numpy.dims("HWC").dtype(np.uint8)
+    image: Numpy.dims("HWC").uint8()
     class_name: str
 
     class Config:

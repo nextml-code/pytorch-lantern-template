@@ -9,7 +9,7 @@ import lantern
 
 import data
 from {{cookiecutter.package_name}}.model import Model
-from . import utilities
+from .utilities import log_examples, metrics, resize_example
 
 
 def train(config):
@@ -18,7 +18,13 @@ def train(config):
     lantern.set_seeds(config["seed"])
 
     model = Model().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=config["learning_rate"])
+    optimizer = torch.optim.AdamW(
+        model.parameters(),
+        lr=config["learning_rate"],
+        betas=(0.95, 0.999),
+        eps=1e-6,
+        weight_decay=1e-3,
+    )
 
     if Path("model").exists():
         print("Loading model checkpoint")
@@ -29,7 +35,7 @@ def train(config):
     datastreams = data.datastreams()
 
     train_data_loader = (
-        datastreams["train"].data_loader(
+        datastreams["train"].map(resize_example).data_loader(
             batch_size=config["batch_size"],
             n_batches_per_epoch=config["n_batches_per_epoch"],
             collate_fn=list,
@@ -42,6 +48,7 @@ def train(config):
     evaluate_data_loaders = {
         name: (
             datastreams[name]
+            .map(resize_example)
             .data_loader(
                 batch_size=config["eval_batch_size"],
                 collate_fn=list,
@@ -53,7 +60,7 @@ def train(config):
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter(log_dir="tb")
     early_stopping = lantern.EarlyStopping(tensorboard_logger=tensorboard_logger)
-    train_metrics = utilities.metrics.train_metrics()
+    train_metrics = metrics.train_metrics()
 
     for epoch in lantern.Epochs(config["max_epochs"]):
 
@@ -61,7 +68,7 @@ def train(config):
             train_data_loader, "train", train_metrics
         ):
             with lantern.module_train(model), torch.enable_grad():
-                predictions = model.predictions([example.image for example in examples])
+                predictions = model.predictions_([example.image for example in examples])
                 loss = predictions.loss(examples)
                 loss.backward()
             optimizer.step()
@@ -74,10 +81,10 @@ def train(config):
                 metric.log_dict(tensorboard_logger, "train", epoch)
 
         print(lantern.MetricTable("train", train_metrics))
-        utilities.log_examples(tensorboard_logger, "train", epoch, predictions, examples)
+        log_examples(tensorboard_logger, "train", epoch, predictions, examples)
 
         evaluate_metrics = {
-            name: utilities.metrics.evaluate_metrics() for name in evaluate_data_loaders
+            name: metrics.evaluate_metrics() for name in evaluate_data_loaders
         }
 
         for dataset_name, data_loader in evaluate_data_loaders.items():
@@ -93,7 +100,7 @@ def train(config):
                 metric.log_dict(tensorboard_logger, dataset_name, epoch)
 
             print(lantern.MetricTable(dataset_name, evaluate_metrics[dataset_name]))
-            utilities.log_examples(tensorboard_logger, dataset_name, epoch, predictions, examples)
+            log_examples(tensorboard_logger, dataset_name, epoch, predictions, examples)
 
         early_stopping = early_stopping.score(
             evaluate_metrics["evaluate_early_stopping"]["pairs"].compute()["accuracy"]

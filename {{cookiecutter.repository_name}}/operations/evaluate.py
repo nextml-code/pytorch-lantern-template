@@ -8,7 +8,7 @@ import torch.utils.tensorboard
 import lantern
 
 import data
-from . import utilities
+from .utilities import metrics, resize_example
 from {{cookiecutter.package_name}}.model import Model
 
 
@@ -25,6 +25,7 @@ def evaluate(config):
     evaluate_data_loaders = {
         name: (
             datastreams[name]
+            .map(resize_example)
             .data_loader(
                 batch_size=config["eval_batch_size"],
                 collate_fn=list,
@@ -36,7 +37,7 @@ def evaluate(config):
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     evaluate_metrics = {
-        name: utilities.metrics.evaluate_metrics() for name in evaluate_data_loaders
+        name: metrics.evaluate_metrics() for name in evaluate_data_loaders
     }
 
     for dataset_name, data_loader in evaluate_data_loaders.items():

@@ -1,4 +1,5 @@
-from .standardized_image import StandardizedImage
-from .prediction import Prediction, PredictionBatch
+from .prediction import Prediction
+from .prediction_batch import PredictionBatch
 from .model import Model
-from .resize import resize
+from .resize import resize, resizer
+from .standardize import standardize

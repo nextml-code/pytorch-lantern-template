@@ -11,8 +11,8 @@ cookiecutter = "^1.7.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
-black = "^20.8b1"
-poetry = "^1.1.5"
+black = "^22.10.0"
+poetry = "^1.2.1"
 cookiecutter = "^1.7.2"
 
 [build-system]

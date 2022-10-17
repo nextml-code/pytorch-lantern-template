@@ -17,6 +17,8 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Set PATH
+      run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
     - name: Cache pip
       uses: actions/cache@v2
@@ -31,13 +33,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         curl -sSL https://install.python-poetry.org | python - --version 1.2.2
-        $HOME/.local/bin/poetry install
+        poetry install
 
     - name: Test with pytest
       run: |
-        $HOME/.local/bin/poetry run pytest
+        poetry run pytest
 
     - name: Build wheels
       run: |
-        $HOME/.local/bin/poetry build
+        poetry build
 {%- endraw %}

@@ -14,22 +14,24 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.8'
+    - name: Set PATH
+      run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
       run: |
         curl -sSL https://install.python-poetry.org | python - --version 1.2.2
-        $HOME/.local/bin/poetry install
+        poetry install
 
     - name: Run tests
       run: |
         source $HOME/.poetry/env
-        $HOME/.local/bin/poetry run pytest
+        poetry run pytest
 
     - name: Build wheels
       run: |
         source $HOME/.poetry/env
-        $HOME/.local/bin/poetry version $(git tag --points-at HEAD)
-        $HOME/.local/bin/poetry build
+        poetry version $(git tag --points-at HEAD)
+        poetry build
 
     # - name: Upload
     #   env:
